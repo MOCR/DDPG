@@ -11,12 +11,13 @@ import random
 from env import Env
 
 import pybrain.rl.environments.cartpole as cp
+from pybrain.rl.environments.cartpole.doublepole import DoublePoleEnvironment
 from result_plot import result_plot
 
 class carpoleEnv(Env):
     print_interval = 100
     def __init__(self):
-        self.env = cp.JustBalanceTask()
+        self.env = cp.JustBalanceTask(env=DoublePoleEnvironment())
         self.env.N = 1000
         self.env.randomInitialization = True
         self.noiseRange = 1.0
@@ -35,25 +36,25 @@ class carpoleEnv(Env):
         self.plot = result_plot()
     
     def state(self):
-        return [self.env.getObservation()]
+        return [self.env.env.getSensors() ]#getObservation()]
     def act(self, action):
-        actNoise = action + self.noise_func()
-        self.env.performAction(actNoise[0]*50)
+        actNoise = min(max(action[0][0] + self.noise_func(),-1.0), 1.0)
+        self.env.performAction([actNoise*50])
         
-        stt= self.env.getObservation()
-        #r = 0        
-        r = 1/(math.pow(stt[0],2)+math.pow(stt[1],2)+math.pow(stt[2],2)+math.pow(stt[3],2)+0.0001)
+        stt= self.state()[0] #self.env.getObservation()
+        #r = 0 
+        r = 1/(math.pow(stt[0],2)+math.pow(stt[1],2)+math.pow(stt[2],2)+math.pow(stt[3],2)+math.pow(stt[4],2)+math.pow(stt[5],2)+0.0001)
 #        r = self.env.getReward()
 #        if r==0:
 #            r=1
 #        else:
 #            r=0
-        #if self.isFinished() and not self.env.t>=self.env.N:
-        #    r -= 100
-        r -= math.pow(actNoise[0], 2.0)*0.1
+        if self.isFinished() and not self.env.t>=self.env.N:
+            r -= 100
+        r -= math.pow(actNoise, 2.0)*0.1
         self.t += 1
         self.r += r
-        return actNoise, [r]
+        return [[actNoise]], [r]
     def reset(self, noise=True):
         self.env.reset()
         if self.ep % 10 == 0:
@@ -62,7 +63,7 @@ class carpoleEnv(Env):
         if self.ep % 10 == 0:
             self.noiseRange = 0
         else:
-            self.noiseRange = math.pow(random.uniform(0.,1.0),2)
+            self.noiseRange = math.pow(random.uniform(0.,1.0),2)/5
         self.om = 0
         self.tmp.append(self.t)
         self.perf_rew.append(self.r/self.t)
@@ -81,15 +82,15 @@ class carpoleEnv(Env):
     def getActionSize(self):
         return 1
     def getStateSize(self):
-        return 4
+        return 6
     def getActionBounds(self):
         return [[1.2], [-1.2]]
     def printEpisode(self):
         print "Episode : " , self.ep, " steps : ", self.t, " reward : ", self.r, " noise : ", self.noiseRange
     def performances(self):
         self.plot.clear()
-        #self.plot.add_row(self.perf_noNoise)        
+        self.plot.add_row(self.perf_noNoise)        
         #self.plot.add_row(self.perf_rew)
         self.plot.add_row(self.perfs_mean)
-        #self.plot.add_row(self.perfs_max)
-        #self.plot.add_row(self.perfs_min)
+        self.plot.add_row(self.perfs_max)
+        self.plot.add_row(self.perfs_min)

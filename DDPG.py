@@ -50,7 +50,6 @@ class DDPG(object):
         self.buffer_minimum = 100
         self.minibatch_size = 64
         self.t = 0
-        self.gamma = 0.99
         
         self.grad_inv = grad_inverter(action_bounds)
         
@@ -145,7 +144,7 @@ class DDPG(object):
                 #print "step time : ", self.totStepTime/(self.totStepTime+self.totTrainTime) , "train time : ", self.totTrainTime/(self.totStepTime+self.totTrainTime)
                 #print "train decomp -> batch mix : ", self.batchMix/(self.batchMix+self.calcTrain), " calculations : ", self.calcTrain/(self.batchMix+self.calcTrain)
                 #print "time 0 : ", self.time0/(self.time0 + self.time1+self.time2), "time 1 : ", self.time1/(self.time0 + self.time1+self.time2), "time 2 : ", self.time2/(self.time0 + self.time1+self.time2)                
-                #print "Steps/minutes : " , 60.0 / (self.stepsTime / self.numStep)                
+                print "Steps/minutes : " , 60.0 / (self.stepsTime / self.numStep)                
                 self.totStepTime = 0
                 self.totTrainTime = 0
                 self.batchMix = 0

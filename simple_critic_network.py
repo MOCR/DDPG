@@ -12,9 +12,9 @@ import tensorflow_session as tfs
 
 class simple_critic_network(critic_network):
     """A first critic network for low-dim state"""
-    l1_size = 400
-    l2_size = 300
-    learning_rate = 0.0001
+    l1_size = 20
+    l2_size = 10
+    learning_rate = 0.001
     ts = 0.001
     def __init__(self, state_size, action_size, action_bound = None):
         l1_size = simple_critic_network.l1_size

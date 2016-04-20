@@ -94,18 +94,19 @@ class MountainCar(EpisodicTask):
         if  position >= bpright:
             r = 100#-self.steps/10.0
             f = 1
-        elif position>self.maxpos:
-            r = 5
-            self.maxpos = position
-        elif position<self.minpos:
-            r = 5
-            self.minpos = position
+#        elif position>self.maxpos:
+#            r = 5
+#            self.maxpos = position
+#        elif position<self.minpos:
+#            r = 5
+#            self.minpos = position
         #r += math.sqrt(math.pow(position+0.5, 2) +math.pow(vel*20, 2))/10.0
             
         if self.steps >= self.maxSteps:
-            r=-10
             f = 5
             
+        r-= math.pow(a,2)*0.1
+        #r+= math.pow(vel*100/7.0, 2)
 #        if a>1.1 or a<-1.1:
 #            r += -10.0
 
@@ -139,7 +140,7 @@ class MountainCar(EpisodicTask):
         bsleft = -0.07
         bsright = 0.07
 
-        speedt1 = speed + (0.001 * force) + (-0.0025 * cos(3.0 * position))
+        speedt1 = speed + (0.0015 * force) + (-0.0025 * cos(3.0 * position))
         #print speedt1
         
         if speedt1 < bsleft:

@@ -11,14 +11,12 @@ import tensorflow as tf
 import tensorflow_session as tfs
 
 class simple_actor_network(actor_network):
-    l1_size = 400
-    l2_size = 300
-    learning_rate = 0.0001
+    l1_size = 20
+    l2_size = 10
+    learning_rate = 0.001
     ts = 0.001
     """A first actor network for low-dim state"""
-    def __init__(self, state_size, action_size):
-        l1_size = simple_actor_network.l1_size
-        l2_size = simple_actor_network.l2_size
+    def __init__(self, state_size, action_size,l1_size = 20, l2_size = 10):
         
         self.graph = tf.Graph()
         with self.graph.as_default():
@@ -87,6 +85,16 @@ class simple_actor_network(actor_network):
             
             self.batch_state = []
             self.batch_actgrad = []
+            
+            self.aglomerate_params = tf.reshape(tf.concat(0,[tf.reshape(self.W1, [-1]), self.b1, tf.reshape(self.W2, [-1]), self.b2, tf.reshape(self.W3, [-1]), self.b3]) , [-1])
+            self.param_loader = tf.placeholder(tf.float32, [state_size*l1_size + l1_size + l1_size*l2_size + l2_size + l2_size*action_size + action_size])
+            
+            self.param_loader_op = [self.W1.assign(tf.reshape(tf.slice(self.param_loader, [0], [state_size*l1_size]), [state_size, l1_size])),
+                                    self.b1.assign(tf.slice(self.param_loader, [state_size*l1_size], [l1_size])),
+                                    self.W2.assign(tf.reshape(tf.slice(self.param_loader, [state_size*l1_size+ l1_size], [l1_size*l2_size]), [l1_size, l2_size])),
+                                    self.b2.assign(tf.slice(self.param_loader, [state_size*l1_size+ l1_size + l1_size*l2_size], [l2_size])),
+                                    self.W3.assign(tf.reshape(tf.slice(self.param_loader, [state_size*l1_size+ l1_size + l1_size*l2_size+ l2_size], [l2_size*action_size]), [l2_size, action_size])),
+                                    self.b3.assign(tf.slice(self.param_loader, [state_size*l1_size+ l1_size + l1_size*l2_size + l2_size + l2_size*action_size], [action_size]))]
 
     def action(self, state, target=False):
         """Return the actor's action for state"""
@@ -117,4 +125,9 @@ class simple_actor_network(actor_network):
                        self.upTargb1,
                        self.upTargb2,      
                        self.upTargb3])
+    def linear_parameters(self):
+        return self.sess.run(self.aglomerate_params)
+    def load_parameters(self, parameters):
+        self.sess.run(self.param_loader_op, feed_dict={self.param_loader : parameters})
+        
         

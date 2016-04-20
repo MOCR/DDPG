@@ -14,7 +14,7 @@ Created on Wed Feb 24 10:00:45 2016
 
 from DDPG import DDPG
 
-import cartpoleEnv as cpe
+import doublecartpoleEnv as cpe
 
 
 env = cpe.carpoleEnv()

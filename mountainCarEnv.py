@@ -9,6 +9,8 @@ import random
 
 from env import Env
 from mountaincar import MountainCar
+import time
+from result import result_log
 #from result_plot import result_plot
 
 class MountainCarEnv(Env):
@@ -20,9 +22,10 @@ class MountainCarEnv(Env):
         self.alpha = 0.6
         self.beta = 0.4
         self.t = 0
+        self.totStep = 0
         self.r = 0
         self.ep = 0
-        self.perfs = []
+        self.perfs = result_log(algo="DDPG", l1=20, l2=10)
         self.actif = True
         #self.plot = result_plot()
     
@@ -39,7 +42,9 @@ class MountainCarEnv(Env):
         self.actif = True
         self.env.reset()
         self.om = 0
-        self.perfs.append(self.t)
+        self.totStep+=self.t
+        if self.totStep != 0:
+            self.perfs.addData(self.totStep, self.t, self.r)
         self.t = 0
         self.r = 0
         self.ep += 1
@@ -63,6 +68,7 @@ class MountainCarEnv(Env):
     def getActionBounds(self):
         return [[1.2], [-1.2]]
     def printEpisode(self):
-        print "Episode : " , self.ep, " steps : ", self.t, " reward : ", self.r, " noise : ", self.noiseRange
+        print time.strftime("[%H:%M:%S]"), " Episode : " , self.ep, " steps : ", self.t, " reward : ", self.r
     def performances(self):
-        self.plot.add_row(self.perfs)
+        pass#self.plot.clear()
+        #self.plot.add_row(self.perfs)
