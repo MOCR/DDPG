@@ -23,5 +23,5 @@ def doEp(M, T=float("inf")):
     a_c.M_episodes(M, T)
     env.perfs.save()
     
-for i in range(20):
+for i in range(5):
     doEp(2500)
