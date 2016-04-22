@@ -1,0 +1,999 @@
+\documentclass[9pt]{beamer}
+
+\mode<presentation>
+    {
+      \usetheme{Montpellier}
+      \setbeamertemplate{footline}
+                        {\hskip 11.9cm \insertframenumber{} / \inserttotalframenumber \vskip .2cm}
+    }
+
+    \usepackage[english]{babel}
+    \selectlanguage{english}
+
+    % or whatever
+    % \usepackage[latin1]{inputenc}
+    \usepackage[utf8]{inputenc}
+
+    % \usepackage{times}
+    % \usepackage{pslatex}
+    \usepackage[T1]{fontenc}
+
+    \usepackage{verbatim}
+    \usepackage{ifthen}
+    \usepackage{xspace}
+    \usepackage{graphicx}
+    \usepackage{pgf, tikz}
+    \usetikzlibrary{arrows,automata}
+    \usepackage{multimedia} % pour beamer
+
+    \usepackage{amsmath,amssymb}
+
+    %\usetheme[left,navsym]{lrde}
+
+    %\usetikzlibrary{calc, arrows, shadows, backgrounds, automata, matrix, positioning, scopes, shapes, trees, patterns, shapes.multipart}
+
+    \usepackage{url}
+
+    \usepackage[vlined,ruled]{algorithm2e}
+    \DeclareGraphicsExtensions{.jpg,.mps,.pdf,.png}
+
+    \def\bbbr{{\rm I\!R}} %reelle Zahlen
+    \def\bbbe{{\rm I\!E}} %reelle Zahlen
+    \newcommand{\N}{\mathbb{N}}
+    \newcommand{\Z}{\mathbb{Z}}
+    \newcommand{\Q}{\mathbb{Q}}
+    \newcommand{\R}{{\bbbr}{}}
+    \newcommand{\E}{{\bbbe}{}}
+    \newcommand{\C}{\mathbb{C}}
+    \newcommand{\K}{\mathbb{K}}
+    \newcommand{\w}{\mathbf{w}}
+
+    \newcommand{\mb}[1]{\mathbb{#1}}
+    \newcommand{\mc}[1]{\mathcal{#1}}
+    \newcommand{\mf}[1]{\mathfrak{#1}}
+
+    \newcommand{\ch}    {\mathop{\mathrm{ch}}\nolimits}
+    \newcommand{\sh}    {\mathop{\mathrm{sh}}\nolimits}
+    \renewcommand{\tanh}{\mathop{\mathrm{th}}\nolimits}
+    \newcommand{\Arcsin}{\mathop{\mathrm{Arcsin}}\nolimits}
+    \newcommand{\Arccos}{\mathop{\mathrm{Arccos}}\nolimits}
+    \newcommand{\Arctan}{\mathop{\mathrm{Arctan}}\nolimits}
+    \newcommand{\Argsh} {\mathop{\mathrm{Argsh}}\nolimits}
+    \newcommand{\Argch} {\mathop{\mathrm{Argch}}\nolimits}
+    \newcommand{\Argth} {\mathop{\mathrm{Argth}}\nolimits}
+
+    %%% Commandes générales
+
+    \newcommand{\cmd}[1]{\texttt{\symbol{"5C}#1}}
+    \newcommand{\latex}{\LaTeX\xspace}
+    \newcommand{\oh}{\textit{ou\-vrage-her\-mes}\xspace}
+    \newcommand{\bs}{\symbol{"5C}}
+    \newcommand{\bsbs}{\symbol{"5C}\symbol{"5C}}
+    \newcommand{\cmdi}[1]{\cmd{index\{#1\}}}
+    \newcommand{\bibtex}{Bib\TeX\xspace}
+    \newcommand{\idx}[1]{{#1}\index{#1}}
+
+    \newcommand{\argmax}{\mathop{\rm argmax}}
+    \newcommand{\argmin}{\mathop{\rm argmin}}
+    \newcommand{\funsig}{\mathop{\rm \sigma}}
+    \newcommand{\limite}{\mathop{\, \to \, }}
+    \newcommand{\abs}[1]{\mid #1 \mid }
+    \newcommand{\norm}[1]{\parallel #1 \parallel }
+    \newcommand{\spn}{\mathop{\rm span}}
+    \newcommand{\rien}[1]{}
+    \newcommand{\td}{TD($\lambda$)}
+    \newcommand{\ttd}{TTD($\lambda$)}
+    \newcommand{\Ql}{Q-learning\xspace}
+    \newcommand{\sarsa}{{\sc sarsa}\xspace}
+    \newcommand{\Rl}{R-learning\xspace}
+    \newcommand{\ind}{1\!\!1}
+    \newcommand{\IR}{\mathbb R}
+    \newcommand{\V}{{\cal V}}
+    \newcommand{\D}{{\cal D}}
+
+    \newcommand{\tref}{{t_0}} %% temps de référence
+    \newcommand{\sta}{{s}}    %% state
+    \newcommand{\STA}{{S}}    %% espace d'states
+    \newcommand{\act}{{a}}    %% action
+    \newcommand{\ACT}{{A}}    %% espace d'action
+    \newcommand{\rwd}{{r}}    %% récompense
+    \newcommand{\trn}{{T}}    %% fonction de transition
+
+    %%% Commandes perso
+
+    \newcommand{\bitem}{\begin{itemize}}
+    \newcommand{\eitem}{\end{itemize}}
+
+    \newcommand{\niveaugris}{0.9}
+    \newcommand{\lignegrise}{\rowcolor[gray]{\niveaugris}}
+
+    \newcommand{\graphique}[2][1.0]{
+      \begin{center}
+        \includegraphics[width=#1\textwidth]{#2}
+      \end{center}
+    }
+
+    \newcommand{\bibref}[2]{
+      \begin{center}
+        \tiny
+        \nocite{#1}
+        \begin{thebibliography}{}
+          \setbeamertemplate{bibliography item}[article]
+        \bibitem{c#1}
+          #2
+        \end{thebibliography}
+    \end{center}}
+
+    \newcommand{\beamergraph}[2]{
+      \mode<presentation>{\graphique[#1]{#2}}
+    }
+
+    \newcommand{\codesource}[2][{}]{
+      \lstinputlisting[language=#1,extendedchars=true]{#2}
+    }
+
+    %%% Graphiques
+
+    \usepackage{graphicx}
+    \DeclareGraphicsExtensions{.jpg,.mps,.pdf,.png}
+    \usepackage{multimedia} % pour beamer
+
+    \beamertemplatetransparentcovereddynamic
+
+    \title{DDPG versus CMA-ES: a detailed comparison}
+    \author{Olivier Sigaud\\\href{http://people.isir.upmc.fr/sigaud}{http://people.isir.upmc.fr/sigaud}}
+    \institute[ISIR]{Joint work with Arnaud de Froissard de Broissia}
+    \graphicspath{{./images/},{/home/sigaud/Bureau/Images/}}
+    \pgfdeclareimage[height=1.2cm]{logo}{logo_isir}
+    \logo{\pgfuseimage{logo}}
+
+    \begin{document}
+    \frame{\titlepage}
+
+    \frame{
+      \frametitle{Outline}
+      \begin{itemize}
+      \item
+        Some background about actor-critic
+      \item
+        Motivate the comparison to CMA-ES
+      \item
+        What is DDPG, how does it work?
+      \item
+        Detailed comparison of the mechanisms
+      \item
+        Experimental study
+      \item
+        Discussion, conclusions
+      \end{itemize}
+    }
+
+    \section{Background and motivation}
+
+    \frame{
+      \frametitle{Policy and value functions}
+      \begin{columns}
+        \begin{column}{0.3\textwidth}
+          \beamergraph{0.85}{policy_iteration_laby1}
+        \end{column}
+        \begin{column}{0.3\textwidth}
+          \beamergraph{0.95}{maze_value}
+        \end{column}
+        \begin{column}{0.5\textwidth}
+          \beamergraph{0.99}{qtable}
+        \end{column}
+      \end{columns}
+      \begin{itemize}
+      \item 
+        Goal: find a \structure{policy} \alert{$\pi: \STA \rightarrow \ACT$} maximizing the agregation of reward on the long run
+      \item 
+        The \structure{value function} \alert{$V^\pi: \STA \rightarrow \R$} records the agregation of reward on the long run for each state (following policy $\pi$). It is a \alert{vector} with one entry per state
+      \item 
+        The \structure{action value function} \alert{$Q^\pi: \STA \times \ACT \rightarrow \R$} records the agregation of reward on the long run for doing each action in each state (and then following policy $\pi$). It is a \alert{matrix} with one entry per state and per action
+      \end{itemize}
+    }
+
+    \frame{
+      \frametitle{Families of methods}
+      \begin{itemize}
+      \item 
+        Critic : (action) value function $\rightarrow$ evaluation of the policy 
+      \item 
+        Actor: the policy itself
+      \item 
+        Critic-only methods: iterates on the value function up to convergence without storing policy, then computes optimal policy. Typical examples: value iteration, Q-learning, Sarsa
+      \item
+        Actor-only methods: explore the space of policy parameters. Typical example: CMA-ES
+      \item
+        Actor-critic methods: update in parallel one structure for the actor and one for the critic. Typical examples: policy iteration, many AC algorithms
+      \item
+Q-learning and Sarsa look for a global optimum, AC looks for a local one
+      \end{itemize}
+    }
+
+    \frame{
+      \frametitle{Temporal Difference error}
+      \begin{itemize}
+      \item 
+        The goal of TD methods is to estimate the value function $V(s)$
+      \item 
+        If estimations $V(s_t)$ and $V(s_{t+1})$ were exact, we would get:
+      \item 
+        $V(s_t) =  r_{t+1} + \gamma r_{t+2} + \gamma ^2 r_{t+3} + \gamma ^3 r_{t+4} + ...$
+      \item 
+        $V(s_{t+1}) = r_{t+2} + \gamma (r_{t+3} + \gamma ^2 r_{t+4} + ...$
+      \item 
+        Thus $V(s_t) = r_{t+1} + \gamma V(s_{t+1})$
+      \item
+        $\delta_k = r_{k+1} + \gamma V(s_{k+1}) - V(s_k)$: measures the error between current values of $V$ and the values they should have
+      \item
+        If $\delta$ positive, increase $V$, if negative, decrease $V$
+      \end{itemize}
+    }
+
+    \frame{
+      \frametitle{Naive actor-critic approach}
+      \beamergraph{0.5}{actor_critic_en}
+      \begin{itemize}
+      \item 
+        Discrete states and actions, stochastic policy 
+      \item 
+        An update in the critic generates a local update in the actor
+      \item 
+        Critic: compute $\delta$ and update $V(s)$ with $V_k(s) \gets V_k(s) + \alpha_k \delta_k$
+      \item 
+        Actor: $P^{\pi}(a|s) = P^{\pi}(a|s) + \alpha_k\prime \delta_k$
+      \item 
+        NB: no need for a max over actions, but local maximum
+      \item 
+        NB2: one must know how to ``draw'' an action from a probabilistic policy (not straightforward for continuous actions)
+      \end{itemize}
+    }
+
+
+    \frame{
+      \frametitle{Quick history}
+      \beamergraph{0.8}{planAC_en}
+      \begin{itemize}
+      \item
+        Those methods proved inefficient for robot RL
+      \end{itemize}
+      \bibref{sutton00_NIPS}{Sutton, R.~S., McAllester, D., Singh, S., \& Mansour, Y. (2000) Policy gradient methods for reinforcement learning with function approximation. In NIPS 12  (pp. 1057--1063).: MIT Press.}
+    }
+
+    \frame{
+      \frametitle{Motivation: why compare to CMA-ES?}
+      \beamergraph{0.6}{rl_bbo2}
+
+      \begin{itemize}
+      \item
+        Towards ``blind'' policy search (CMA-ES) + DMPs (small domain)
+      \item
+        Requires DMP engineering
+      \item
+        In principle, actor-critic should be more data efficient
+      \item
+        But sensitive to value function approximation error
+      \item
+        DDPG brings accurate value function approximation and no feature engineering 
+      \end{itemize}
+      \bibref{stulp12icml}{Stulp, F. \& Sigaud, O. (2012) Path integral policy improvement with covariance matrix adaptation, In {\em Proceedings ICML 29}  (pp.\ 1--8).  Edinburgh, Scotland.}
+    }
+
+    \section{Explaining DDPG}
+
+    \frame{
+      \frametitle{DDPG: The paper}
+      \begin{itemize}
+      \item
+        Continuous control with deep reinforcement learning
+      \item
+        Timothy P. Lillicrap Jonathan J. Hunt, Alexander Pritzel, Nicolas Heess, Tom Erez, Yuval Tassa, David Silver, Daan Wierstra
+      \item
+        Google Deepmind
+      \item
+        On arXiv since september 7, 2015
+      \item
+        Already cited 21 times
+      \end{itemize}
+      \bibref{lillicrap2015continuous}{
+        Lillicrap, T.~P., Hunt, J.~J., Pritzel, A., Heess, N., Erez, T., Tassa, Y.,
+        Silver, D., and Wierstra, D. (2015).
+        Continuous control with deep reinforcement learning.
+        {\em arXiv preprint arXiv:1509.02971 7/9/15}.
+      }
+    }
+
+    \subsection{The core: Deterministic Policy Gradient}
+
+    \frame{
+      \frametitle{DDPG: ancestors}
+      \beamergraph{0.5}{ddpg_history-svg}
+      \begin{itemize}
+      \item
+        DQN: Atari domain, Nature paper, small discrete actions set
+      \item
+        Most of the actor-critic theory for continuous problem is for stochastic policies (policy gradient theorem, compatible features, etc.)
+      \end{itemize}
+      \bibref{mnih2015human}{Mnih, V., Kavukcuoglu, K., Silver, D., Rusu, A.~A., Veness, J., Bellemare, M.~G., Graves, A., Riedmiller, M., Fidjeland, A.~K., Ostrovski, G., et~al. (2015) Human-level control through deep reinforcement learning. {\em Nature}, 518(7540), 529--533.}
+      \bibref{silver2014deterministic}{Silver, D., Lever, G., Heess, N., Degris, T., Wierstra, D., \& Riedmiller, M. (2014) Deterministic policy gradient algorithms. In {\em ICML}.}
+    }
+
+    \frame{
+      \frametitle{General architecture}
+      \beamergraph{0.5}{actor_critic_deep-svg}
+      \begin{itemize}
+      \item
+        Any neural network structure
+      \item
+        Actor parametrized by $\w$, critic by $\theta$
+      \end{itemize}
+    }
+
+    \frame{
+      \frametitle{Training the critic}
+      \beamergraph{0.2}{critic_update-svg}
+                  {\small
+                    \begin{itemize}
+                    \item
+                      In DPG (and RL in general), the critic should minimize the RPE:
+                      $$ \delta = r + \gamma Q(s_{t+1},\pi(s_{t+1})|\theta) - Q(s_t,a_t|\theta)$$
+                    \item
+                      We want to minimize the critic error using backprop on critic weights $\theta$
+                    \item
+                      Error = difference between network output $Q(s_t,a_t|\theta)$ and ``something''
+                    \item
+                      Thus, given $N$ samples $\{s_i,a_i,r_i,s_{i+1}\}$, compute $y_i = r_i + \gamma Q(s_{t+1},\pi(s_{t+1})|\theta)$
+                    \item
+                      And update $\theta$ by minimizing the squared loss function (backpropagation of the squared error) over the batch
+                      \begin{equation}
+                        \label{eq:critic_loss}
+                        L = 1/N \sum_i (y_i-Q(s_i,a_i|\theta))^2
+                      \end{equation}
+                    \item
+                      Backprop is available in TensorFlow, theano... (RProp, RMSProp, Adagrad, Adam?)
+                    \end{itemize}
+                  }
+    }
+
+    \frame{
+      \frametitle{Training the actor}
+      \beamergraph{0.4}{actor_update-svg}
+                  {\small
+                    \begin{itemize}
+                    \item
+                      Deterministic policy gradient theorem: the true policy gradient is
+                      \begin{equation}
+                        \label{eq:actor_update}
+                        \nabla_{\w}\pi(s,a) = \E_{\rho(s)}[\nabla_aQ(s,a|\theta)\nabla_{\w}\pi(s|\w)]
+                      \end{equation}
+                    \item
+                      $\nabla_aQ(s,a|\theta)$ is obtained by computing the gradient over actions of $Q(s,a|\theta)$ in the critic.
+                    \item
+                      The gradient over actions is similar to the gradient over weights (symmetric roles of weights and inputs)
+                    \item
+                      $\nabla_aQ(s,a|\theta)$ is used as an error signal to update the actor's weights through backprop again.
+                    \item
+                      Comes from NFQCA
+                    \end{itemize}
+                    \bibref{hafner2011reinforcement}{Hafner, R. \& Riedmiller, M. (2011) Reinforcement learning in feedback control. {\em Machine learning}, 84(1-2), 137--169.}
+                  }
+    }
+
+    \frame{
+      \frametitle{Actor update over a batch}
+      \beamergraph{0.4}{ddpg-svg}
+      \begin{itemize}
+      \item
+        Compsider a batch of $N$ samples
+      \item
+        Compute the gradient of the critic for each sample
+      \item
+        Then compute the corresponding gradient of the actor
+      \item
+        Compute the average over all these gradients (all weights to 1)
+      \item
+        Defines the new actor parameters
+      \end{itemize}
+    }
+
+    \frame{
+      \frametitle{General algorithm}
+      \begin{enumerate}
+      \item
+        Feed the actor with the state, outputs the action
+      \item
+        Feed the critic with the state and action, determines $Q(s,a|\theta^Q)$
+      \item
+        Update the critic, using \eqref{eq:critic_loss} (alternative: do it after 4?)
+      \item
+        Compute $\nabla_aQ(s,a|\theta)$
+      \item
+        Update the actor, using \eqref{eq:actor_update}
+      \end{enumerate}
+    }
+
+    \frame{
+      \frametitle{Subtleties}
+      \begin{itemize}
+      \item
+        The actor update rule is 
+        $$\nabla_{\w}\pi(s_i) \approx 1/N \sum_i \nabla_{a} Q(s,a|\theta)|_{s=s_i,a=\pi(s_i)}\nabla_{\w}\pi(s)|_{s=s_i} $$
+      \item
+        Thus we do not use the action in the samples to update the actor
+      \item
+        Could it be
+        $$\nabla_{\w}\pi(s_i) \approx 1/N \sum_i \nabla_{a} Q(s,a|\theta)|_{s=s_i,\alert{a=a_i}}\nabla_{\w}\pi(s)|_{s=s_i}?$$
+      \item
+        Work on $\pi(s_i)$ instead of $a_i$
+      \item
+        Does this make the algorithm on-policy instead of off-policy?
+      \item
+        Does this make a difference?
+      \end{itemize}
+    }
+
+    \subsection{Further tricks}
+
+    \frame{
+      \frametitle{Trick 1: Sample buffer (from DQN)}
+      \beamergraph{0.6}{replay_buffer-svg}
+      \begin{itemize}
+      \item
+        In most optimization algorithms, samples are assumed independently and identically distributed (iid)
+      \item
+        Obviously, this is not the case of behavioral samples $(s_i,a_i,r_i,s_{i+1})$
+      \item
+        Idea: put the samples into a buffer, and extract them randomly
+      \end{itemize}
+    }
+
+    \frame{
+      \frametitle{Trick 2: Stable Target Q-function (from DQN)}
+      \begin{itemize}
+      \item
+        Compute the critic loss function from a separate target network $Q'(...|\theta')$
+      \item
+        So compute $y_i = r_i + \gamma Q'(s_{i+1},\pi(s_{i+1})|\theta')$
+      \item
+        In DQN, the $\theta$ is updated after each batch 
+      \item
+        In DDPG, they rather allow for slow evolution of $Q'$ and $\pi'$
+        $$\theta' \leftarrow \tau \theta + (1 - \tau) \theta'$$ 
+      \item
+        The same applies to $\mu$, $\mu'$
+      \item
+        From the empirical study, this is the critical trick
+      \end{itemize}
+    }
+
+    \frame{
+      \frametitle{Trick 3: Batch Normalization (new)}
+      \begin{itemize}
+      \item
+        Covariate shift: as layer $N$ is trained, the input distribution of layer $N+1$ is shifted, which makes learning harder
+      \item
+        To fight covariate shift, ensure that each dimension across the samples in a minibatch have unit mean and variance at each layer
+      \item
+        Add a buffer between each layer, and normalize all samples in these buffers
+      \item
+        Makes learning easier and faster
+      \item
+        Makes the algorithm more domain-insensitive
+      \item
+        But poor theoretical grounding, and makes network computation slower
+      \end{itemize}
+      \bibref{ioffe2015batch}{Ioffe, S. \& Szegedy, C. (2015) Batch normalization: Accelerating deep network training by reducing internal covariate shift.
+        {\em arXiv preprint arXiv:1502.03167}.
+      }
+    }
+
+    \frame{
+      \frametitle{Algorithm}
+      \beamergraph{0.8}{algo}
+      \begin{itemize}
+      \item
+        Notice the slow $Q'$ and $\pi'$ updates (instead of copying as in DQN)
+      \end{itemize}
+    }
+
+    \subsection{Results}
+
+    \frame{
+      \frametitle{Applications: impressive results}
+      \beamergraph{0.7}{applis1}
+      \beamergraph{0.7}{applis2}
+      
+      \begin{itemize}
+      \item
+        End-to-end policies (from pixels to control)
+      \item
+        Works impressively well on ``More than 20'' (27-32) such domains
+      \item
+        Coded with MuJoCo (Todorov) / TORCS
+      \end{itemize}
+    }
+
+    \section{Comparison to CMA-ES}
+
+    \frame{
+      \frametitle{Motivation of the comparison}
+      
+      \begin{itemize}
+      \item
+        DDPG still looks for a local minimum, like any actor-critic method
+      \item
+        In contrast to CMA-ES, DDPG can learn a policy with many parameters (CMA-ES on actor with 2 hidden layers of 1000 neurons: ``out of memory''!)
+      \item
+        DDPG is mostly useful to learn ``end-to-end'' policies
+      \item
+        But does value function approximation provide a clear advantage wrt to actor-only policy search?
+      \item
+        Unfair comparison: DDPG is outside its application domain (small actor network)
+      \item
+        Is it still better than CMA-ES?
+      \item
+        If yes, stop using CMA-ES...
+      \end{itemize}
+    }
+
+    \subsection{CMA-ES: reminder of the steps}
+
+    \frame{
+      \frametitle{Set-up: initialization}
+      \beamergraph{0.4}{crossentropy-1-svg}
+      \begin{itemize}
+      \item
+        Define an initial cross-entropy matrix 
+      \end{itemize}
+    }
+
+    \frame{
+      \frametitle{Generate samples}
+      \beamergraph{0.4}{crossentropy-2-svg}
+      \begin{itemize}
+      \item
+        A fixed number $N$ of samples are drawn according to the current cross-entropy matrix 
+      \end{itemize}
+    }
+
+    \frame{
+      \frametitle{Evaluate samples}
+      \beamergraph{0.4}{crossentropy-3-svg}
+      \begin{itemize}
+      \item
+        This is the costly step: evaluate the actor performing complete trajectories
+      \item
+        If the problem is stochastic, several trajectories are required per sample 
+      \item
+        Evaluation at the end of each trajectory
+      \end{itemize}
+    }
+
+    \frame{
+      \frametitle{Reward weighted averaging}
+      \beamergraph{0.4}{crossentropy-3-svg}
+      \begin{itemize}
+      \item
+        Compute new parameter vector as an average of the samples weighted by their performance
+      \item
+        Then adapt the cross-entropy matrix 
+      \end{itemize}
+    }
+
+    \subsection{DDPG: comparative analysis}
+
+    \frame{
+      \frametitle{CMA-ES vs DDPG: comparison}
+      \begin{itemize}
+      \item
+        Computation of the gradient in DDPG does just require the $N$ samples
+      \item
+        Compared to $k \times N$ trajectories
+      \item
+        Samples at each step versus evaluation at the end of the trajectory
+      \item
+        The return in CMA-ES is exact, whereas in DDPG it depends on the accuracy of the critic
+      \item
+        Samples for critic training versus samples for policy improvement
+      \end{itemize}
+    }
+
+    \frame{
+      \frametitle{Closer comparison}
+      \begin{itemize}
+      \item
+        Source of randomness in CMA-ES: drawing the samples
+      \item
+        Source of randomness in DDPG: exploration noise in the policy, stochastic gradient descent (?)
+      \item
+        Exploration noise in the policy: in DDPG, action perturbation rather than policy parameter perturbation
+      \item
+        Rather try the latter?
+      \item
+        The gradient of DDPG makes analytic profit of knowing the structure of the actor (function derivation)
+      \item
+        Can we express the gradient of the actor in DDPG in terms of equivalent trajectory samples?
+      \item
+        Using the derivative as a first order difference $\frac{(\theta-\theta')}{d_t}$?
+      \item
+        What about performing weighted average instead of all samples weighted to 1?
+      \end{itemize}
+    }
+
+    \section{Empirical comparison}
+
+    \frame{
+      \frametitle{Work in progress...}
+      \beamergraph{0.4}{mountaincar}
+      \begin{itemize}
+      \item
+        Cost = squared acceleration per time step
+      \item
+        Reward if goal reached
+      \item
+        Based on the mountain car benchmark
+      \item
+        Very simple actor: two input, one output, 2 hidden layers with 20? and 10? neurons respectively
+      \item
+        No batch normalization nor weight normalization
+      \end{itemize}
+    }
+
+    \frame{
+      \frametitle{Very preliminary results}
+      \beamergraph{0.5}{compCMA-ES_DDPG_Time}
+      \begin{itemize}
+      \item
+        X = number of calls to simulator, Y = number of steps to reach goal
+      \item
+        The time to compute both results is similar
+      \item
+        This (seems to) illustrate that DDPG is much more sample efficient
+      \item
+        To be confirmed by comparing time, averaging over more results, etc.
+      \item
+        Also compare using batch norm, weight norm, etc.
+      \end{itemize}
+    }
+
+    \frame{
+      \frametitle{Comparison: next steps}
+      \begin{itemize}
+      \item
+        Try a steeper mountain
+      \item
+        Given the same actor and the same set of samples, compare the progress you get in the actor between CMA-ES and DDPG:
+      \begin{itemize}
+      \item
+        with a naive critic
+      \item
+        with a midly trained critic
+      \item
+        with an optimal critic
+      \end{itemize}
+      \item
+        Compare to Bayesian optimization
+      \item
+        Apply it to more challenging robot learning benchmark
+      \end{itemize}
+    }
+
+    \section{Discussion}
+
+    \subsection{Ideas for improving DDPG}
+
+    \frame{
+      \frametitle{CMA-ES first, then DDPG}
+      \begin{center}
+      \begin{itemize}
+      \item
+        When the critic is not good, CMA-ES may work better than DDPG
+      \item
+        But once the critic is good, DDPG is more efficient
+      \item
+        So CMA-ES may work better than DDPG in the beginning, and much slower then
+      \item
+        Try to switch from a CMA-ES-like approach to a DDPG-like approach along time
+      \end{itemize}
+    \end{center}
+    }
+    \subsection{Alternatives for the critic}
+
+    \frame{
+      \frametitle{Approximate the immediate reward}
+      \beamergraph{0.7}{rpe_archi-svg}
+      \begin{itemize}
+      \item
+        The new information in the RPE update rule is the reward,
+      \item
+        The critic network may encode the expected immediate reward function $f_\theta(s_i,a_i,s_{i+1}) = \gamma Q(s_{i+1},\pi(s_{i+1})|\theta) - Q(s_i,a_i|\theta)$
+      \item
+        We still get $\delta$, but we don't know how to compute $\nabla_aQ(s,a|\theta)$
+      \end{itemize}
+    }
+
+    \frame{
+      \frametitle{Approximate the advantage function}
+      \begin{itemize}
+      \item
+        Other option: encode the advantage function $A_\theta(s_i,a_i) = Q(s_i,a_i|\theta) - max_{a}Q(s_i,a|\theta)$
+      \item
+        Very good recent paper
+      \item
+        Or see GProp...
+      \end{itemize}
+      \bibref{gu2016continuous}{Gu, S., Lillicrap, T., Sutskever, I., \& Levine, S. (2016) Continuous deep q-learning with model-based acceleration, {\em arXiv preprint arXiv:1603.00748}.}
+      \bibref{ba1}{Balduzzi, D. and Ghifary, M. (2015). Compatible value gradients for reinforcement learning of continuous deep policies, {\em arXiv preprint arXiv:1509.03005  10/9/15}.}
+    }
+
+    \subsection{Other stuff}
+
+    \frame{
+      \frametitle{Better exploration}
+      
+      \begin{itemize}
+      \item
+        DDPG does not help to find scarce rewards (the needle in the stack): no specific exploration
+      \item
+        Get inspired by diversity search in evolutionary techniques
+      \end{itemize}
+    }
+
+    \frame{
+      \frametitle{Back to natural gradient}
+      
+      \begin{itemize}
+      \item
+        Batch normalization
+      \item
+        Weight normalization 
+      \item
+        Natural Neural networks
+      \end{itemize}
+      \bibref{salimans2016weight}{Salimans, T. \& Kingma, D.~P. (2016) Weight normalization: A simple reparameterization to accelerate training of deep neural networks, {\em arXiv preprint arXiv:1602.07868}.}
+      \bibref{desjardins2015natural}{Desjardins, G., Simonyan, K., Pascanu, R., et~al. (2015) Natural neural networks, In {\em Advances in Neural Information Processing Systems}  (pp.\ 2062--2070).}
+    }
+
+    \frame{
+      \frametitle{Any question?}
+      \beamergraph{0.8}{robonova2}
+    }
+
+    \section{References}
+
+    {\tiny
+      \bibliographystyle{apalike2}
+      \bibliography{/home/sigaud/Bureau/Docs/Latex/Biblio/deep,/home/sigaud/Bureau/Docs/Latex/Biblio/perso}
+    }
+
+    %#----------------------------------------------------------------------------------------------
+
+    \frame{
+      \frametitle{Computational neuroscience impact}
+      \begin{itemize}
+      \item
+        Deep learning models of cortical computations (ConvNets, etc.)
+      \item
+        Deep RL: cortex + basal ganglia?
+      \item
+        Bird song as the ideal domain
+      \end{itemize}
+    }
+
+    \section{Following literature}
+
+    \frame{
+      \frametitle{Testing DDPG}
+      \begin{center}
+        \begin{itemize}
+        \item 
+          Tests DDPG, in particular experience replay database
+        \item 
+          Does not work everytime...
+        \end{itemize}
+      \end{center}
+      \bibref{deimportance}{de~Bruin, T., Kober, J., Tuyls, K., and Babu{\v{s}}ka, R. (2015) The importance of experience replay database composition in deep reinforcement learning.}
+      See: \href{http://rll.berkeley.edu/deeprlworkshop/}{http://rll.berkeley.edu/deeprlworkshop/} (23 papers)
+    }
+
+    \frame{
+      \frametitle{Compatible value gradient (GProp)}
+      \begin{itemize}
+      \item 
+        Clean (difficult?) theoretical paper referenced in 4 others
+      \item 
+        Approx the value function gradient rather than derive the approx of the value function (by adding Gaussian noise to the function)
+      \item 
+        Value gradient via backpropagation
+      \item 
+        Better than supervised learning on SARCOS/BARRETT via a bandit formulation (very clear)
+      \end{itemize}
+      \bibref{balduzzi2015compatible}{
+        Balduzzi, D. and Ghifary, M. (2015).
+        Compatible value gradients for reinforcement learning of continuous deep policies.
+        {\em arXiv preprint arXiv:1509.03005  10/9/15}.
+      }
+    }
+
+    \frame{
+      \frametitle{Stochastic Value Gradient}
+      \begin{center}
+      \begin{itemize}
+      \item 
+        Extends DDPG to stochastic value gradients
+      \item 
+        Difficult NIPS paper, poorly explained
+      \item 
+        Cites \cite{balduzzi2015compatible}, but follows a different line
+      \end{itemize}
+    \end{center}
+    \bibref{heess2015learning}{Heess, N., Wayne, G., Silver, D., Lillicrap, T., Erez, T., and Tassa, Y. (2015) Learning continuous control policies by stochastic value gradients, In {\em Advances in Neural Information Processing Systems}, pages 2926--2934. (\~{} 15/12/15).}
+}
+
+    \frame{
+      \frametitle{Actor-Mimic}
+      \begin{itemize}
+      \item 
+        Transfer learning on Atari games
+      \item 
+        Learns individual experts on each game
+      \item 
+        Builds a ``multi-game'' expert
+      \item 
+        Learns faster on a new game
+      \end{itemize}
+      \bibref{parisotto2015actor}{
+        Parisotto, E., Ba, J.~L., and Salakhutdinov, R. (2015).
+        Actor-mimic: Deep multitask and transfer reinforcement learning.
+        {\em arXiv preprint arXiv:1511.06342 6/1/16}.
+      }
+    }
+
+    \frame{
+      \frametitle{Hausknecht et Stone}
+      \begin{center}
+        \begin{itemize}
+        \item 
+          Application of DDPG to RoboCup
+        \item 
+          Uses structured parametrized actions (list with continuous parameters)
+        \item 
+          Usefulness : (sometimes dubious?) programming-centered presentation
+        \end{itemize}
+      \end{center}
+      \bibref{hausknecht2015deep}{
+        Hausknecht, M. and Stone, P. (2015).
+        Deep reinforcement learning in parameterized action space.
+        {\em arXiv preprint arXiv:1511.04143 8/1/16}.
+      }
+    }
+
+    \frame{
+      \frametitle{Memory-based control}
+      \begin{center}
+        \begin{itemize}
+        \item 
+          Extends DDPG to POMDPs (use of memory)
+        \item 
+          Combines DDGP and LSTM
+        \item 
+          Applications: cart-pole without speed, watermaze
+        \item 
+          Very few details on applications
+        \item 
+          Follow-up: use GRU, Clockwork-RNN, SRCN?
+        \end{itemize}
+      \end{center}
+      \bibref{heess2015memory}{
+        Heess, N., Hunt, J.~J., Lillicrap, T.~P., and Silver, D. (2015).
+        Memory-based control with recurrent neural networks.
+        {\em arXiv preprint arXiv:1512.04455 14/12/15}.
+      }
+    }
+
+    \frame{
+      \frametitle{Results: learning curves}
+      
+      \beamergraph{0.8}{courbes}
+      
+      \begin{itemize}
+      \item
+        Notice the million steps!
+      \end{itemize}
+    }
+
+    \frame{
+      \frametitle{Results: performance}
+      
+      \beamergraph{0.6}{tableau_resultats}
+      
+      \begin{itemize}
+      \item
+        Sometimes better (>1) than iLQG (model-based, pure planning)
+      \item
+        Results on TORCS are not so good
+      \end{itemize}
+    }
+
+    \frame{
+      \frametitle{Results: analysis}
+      
+      \beamergraph{0.8}{estimatedQ}
+      
+      \begin{itemize}
+      \item
+        The closer to the diagonal, the better the estimate
+      \item
+        It is not always so good
+      \item
+        So why does it work so well?
+      \end{itemize}
+    }
+
+    \frame{
+      \frametitle{Following papers (1)}
+                 {\small
+                   \begin{itemize}
+                   \item
+                     Balduzzi, D. and Ghifary, M. (2015).
+                     Compatible value gradients for reinforcement learning of continuous
+                     deep policies.
+                     {\em arXiv preprint arXiv:1509.03005  10/9/15}.
+                   \item
+                     Hausknecht, M. and Stone, P. (2015).
+                     Deep reinforcement learning in parameterized action space.
+                     {\em arXiv preprint arXiv:1511.04143 8/1/16}.
+                   \item
+                     Parisotto, E., Ba, J.~L., and Salakhutdinov, R. (2015).
+                     Actor-mimic: Deep multitask and transfer reinforcement learning.
+                     {\em arXiv preprint arXiv:1511.06342 6/1/16}.
+                   \item
+                     Heess, N., Hunt, J.~J., Lillicrap, T.~P., and Silver, D. (2015).
+                     Memory-based control with recurrent neural networks.
+                     {\em arXiv preprint arXiv:1512.04455 14/12/15}.
+                   \item
+                     Heess, N., Wayne, G., Silver, D., Lillicrap, T., Erez, T., and Tassa, Y. (2015).
+                     Learning continuous control policies by stochastic value gradients.
+                     In {\em Advances in Neural Information Processing Systems}, pages 2926--2934. (\~{} 15/12/15)
+                   \item
+                     de~Bruin, T., Kober, J., Tuyls, K., and Babu{\v{s}}ka, R.
+                     The importance of experience replay database composition in deep reinforcement learning. Deep RL workshop, NIPS 15
+                   \end{itemize}
+                 }
+    }
+
+    \frame{
+      \frametitle{Following papers (2)}
+
+      \bibref{balduzzi2015semantics}{
+        Balduzzi, D. (2015).
+        Semantics, representations and grammars for deep learning.
+        {\em arXiv preprint arXiv:1509.08627 29/9/15}.
+      }
+      \bibref{dulac2015reinforcement}{
+        Dulac-Arnold, G., Evans, R., Sunehag, P., and Coppin, B. (2015).
+        Reinforcement learning in large discrete action spaces.
+        {\em arXiv preprint arXiv:1512.07679 24/12/15}.
+      }
+      \bibref{yoshida2015q}{
+        Yoshida, N. (2015).
+        Q-networks for binary vector actions.
+        {\em arXiv preprint arXiv:1512.01332}.
+      }
+      \bibref{tzeng2015towards}{
+        Tzeng, E., Devin, C., Hoffman, J., Finn, C., Peng, X., Levine, S., Saenko, K., and Darrell, T. (2015).
+        Towards adapting deep visuomotor representations from simulated to real environments.
+        {\em arXiv preprint arXiv:1511.07111}.
+      }
+      \bibref{fragkiadaki2015learning}{
+        Fragkiadaki, K., Agrawal, P., Levine, S., and Malik, J. (2015).
+        Learning visual predictive models of physics for playing billiards.
+        {\em arXiv preprint arXiv:1511.07404}.
+      }
+
+      See also : \href{http://rll.berkeley.edu/deeprlworkshop/}{http://rll.berkeley.edu/deeprlworkshop/} (23 papers)
+
+    }
+
+    \end{document}

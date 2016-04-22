@@ -1,0 +1,125 @@
+\begin{thebibliography}{}
+
+\bibitem[Balduzzi, 2015]{balduzzi2015semantics}
+Balduzzi, D. (2015).
+\newblock Semantics, representations and grammars for deep learning.
+\newblock {\em arXiv preprint arXiv:1509.08627}.
+
+\bibitem[Balduzzi \& Ghifary, 2015]{balduzzi2015compatible}
+Balduzzi, D. \& Ghifary, M. (2015).
+\newblock Compatible value gradients for reinforcement learning of continuous
+  deep policies.
+\newblock {\em arXiv preprint arXiv:1509.03005}.
+
+\bibitem[de~Bruin et~al., ]{deimportance}
+de~Bruin, T., Kober, J., Tuyls, K., \& Babu{\v{s}}ka, R.
+\newblock The importance of experience replay database composition in deep
+  reinforcement learning.
+\newblock In {\em Deep RL workshop at NIPS 2015}.
+
+\bibitem[Desjardins et~al., 2015]{desjardins2015natural}
+Desjardins, G., Simonyan, K., Pascanu, R., et~al. (2015).
+\newblock Natural neural networks.
+\newblock In {\em Advances in Neural Information Processing Systems}  (pp.\
+  2062--2070).
+
+\bibitem[Dulac-Arnold et~al., 2015]{dulac2015reinforcement}
+Dulac-Arnold, G., Evans, R., Sunehag, P., \& Coppin, B. (2015).
+\newblock Reinforcement learning in large discrete action spaces.
+\newblock {\em arXiv preprint arXiv:1512.07679}.
+
+\bibitem[Fragkiadaki et~al., 2015]{fragkiadaki2015learning}
+Fragkiadaki, K., Agrawal, P., Levine, S., \& Malik, J. (2015).
+\newblock Learning visual predictive models of physics for playing billiards.
+\newblock {\em arXiv preprint arXiv:1511.07404}.
+
+\bibitem[Gu et~al., 2016]{gu2016continuous}
+Gu, S., Lillicrap, T., Sutskever, I., \& Levine, S. (2016).
+\newblock Continuous deep q-learning with model-based acceleration.
+\newblock {\em arXiv preprint arXiv:1603.00748}.
+
+\bibitem[Hafner \& Riedmiller, 2011]{hafner2011reinforcement}
+Hafner, R. \& Riedmiller, M. (2011).
+\newblock Reinforcement learning in feedback control.
+\newblock {\em Machine learning}, 84(1-2), 137--169.
+
+\bibitem[Hausknecht \& Stone, 2015]{hausknecht2015deep}
+Hausknecht, M. \& Stone, P. (2015).
+\newblock Deep reinforcement learning in parameterized action space.
+\newblock {\em arXiv preprint arXiv:1511.04143}.
+
+\bibitem[Heess et~al., 2015a]{heess2015memory}
+Heess, N., Hunt, J.~J., Lillicrap, T.~P., \& Silver, D. (2015a).
+\newblock Memory-based control with recurrent neural networks.
+\newblock {\em arXiv preprint arXiv:1512.04455}.
+
+\bibitem[Heess et~al., 2015b]{heess2015learning}
+Heess, N., Wayne, G., Silver, D., Lillicrap, T., Erez, T., \& Tassa, Y.
+  (2015b).
+\newblock Learning continuous control policies by stochastic value gradients.
+\newblock In {\em Advances in Neural Information Processing Systems}  (pp.\
+  2926--2934).
+
+\bibitem[Ioffe \& Szegedy, 2015]{ioffe2015batch}
+Ioffe, S. \& Szegedy, C. (2015).
+\newblock Batch normalization: Accelerating deep network training by reducing
+  internal covariate shift.
+\newblock {\em arXiv preprint arXiv:1502.03167}.
+
+\bibitem[Lillicrap et~al., 2015]{lillicrap2015continuous}
+Lillicrap, T.~P., Hunt, J.~J., Pritzel, A., Heess, N., Erez, T., Tassa, Y.,
+  Silver, D., \& Wierstra, D. (2015).
+\newblock Continuous control with deep reinforcement learning.
+\newblock {\em arXiv preprint arXiv:1509.02971}.
+
+\bibitem[Mnih et~al., 2015]{mnih2015human}
+Mnih, V., Kavukcuoglu, K., Silver, D., Rusu, A.~A., Veness, J., Bellemare,
+  M.~G., Graves, A., Riedmiller, M., Fidjeland, A.~K., Ostrovski, G., et~al.
+  (2015).
+\newblock Human-level control through deep reinforcement learning.
+\newblock {\em Nature}, 518(7540), 529--533.
+
+\bibitem[Parisotto et~al., 2015]{parisotto2015actor}
+Parisotto, E., Ba, J.~L., \& Salakhutdinov, R. (2015).
+\newblock Actor-mimic: Deep multitask and transfer reinforcement learning.
+\newblock {\em arXiv preprint arXiv:1511.06342}.
+
+\bibitem[Salimans \& Kingma, 2016]{salimans2016weight}
+Salimans, T. \& Kingma, D.~P. (2016).
+\newblock Weight normalization: A simple reparameterization to accelerate
+  training of deep neural networks.
+\newblock {\em arXiv preprint arXiv:1602.07868}.
+
+\bibitem[Silver et~al., 2014]{silver2014deterministic}
+Silver, D., Lever, G., Heess, N., Degris, T., Wierstra, D., \& Riedmiller, M.
+  (2014).
+\newblock Deterministic policy gradient algorithms.
+\newblock In {\em Proceedings of the 30th International Conference in Machine
+  Learning}.
+
+\bibitem[Stulp \& Sigaud, 2012]{stulp12icml}
+Stulp, F. \& Sigaud, O. (2012).
+\newblock Path integral policy improvement with covariance matrix adaptation.
+\newblock In {\em Proceedings of the 29th {I}nternational {C}onference on
+  {M}achine {L}earning (ICML)}  (pp.\ 1--8).  Edinburgh, Scotland.
+
+\bibitem[Sutton et~al., 2000]{sutton00_NIPS}
+Sutton, R.~S., McAllester, D., Singh, S., \& Mansour, Y. (2000).
+\newblock Policy gradient methods for reinforcement learning with function
+  approximation.
+\newblock In {\em Advances in Neural Information Processing Systems 12}  (pp.\
+  1057--1063).: MIT Press.
+
+\bibitem[Tzeng et~al., 2015]{tzeng2015towards}
+Tzeng, E., Devin, C., Hoffman, J., Finn, C., Peng, X., Levine, S., Saenko, K.,
+  \& Darrell, T. (2015).
+\newblock Towards adapting deep visuomotor representations from simulated to
+  real environments.
+\newblock {\em arXiv preprint arXiv:1511.07111}.
+
+\bibitem[Yoshida, 2015]{yoshida2015q}
+Yoshida, N. (2015).
+\newblock Q-networks for binary vector actions.
+\newblock {\em arXiv preprint arXiv:1512.01332}.
+
+\end{thebibliography}
