@@ -22,6 +22,4 @@ env.extern_draw = voidFunc
 def doEp(M, T=float("inf")):
     a_c.M_episodes(M, T)
     env.perfs.save()
-    
-for i in range(5):
-    doEp(2500)
+doEp(4000)

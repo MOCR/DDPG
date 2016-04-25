@@ -9,3 +9,16 @@ python schedule_calcs_DDPG.py &
 python schedule_calcs_DDPG.py &
 python schedule_calcs_DDPG.py &
 python schedule_calcs_DDPG.py &
+python schedule_calcs_DDPG.py &
+python schedule_calcs_DDPG.py &
+python schedule_calcs_DDPG.py &
+python schedule_calcs_DDPG.py &
+python schedule_calcs_DDPG.py &
+python schedule_calcs_DDPG.py &
+python schedule_calcs_DDPG.py &
+python schedule_calcs_DDPG.py &
+python schedule_calcs_DDPG.py &
+python schedule_calcs_DDPG.py &
+python schedule_calcs_DDPG.py &
+python schedule_calcs_DDPG.py &
+wait
