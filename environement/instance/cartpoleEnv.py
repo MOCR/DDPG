@@ -15,7 +15,7 @@ from DDPG.logger.result_plot import result_plot
 
 class carpoleEnv(Env):
     print_interval = 100
-    def __init__(self):
+    def __init__(self,logger = None):
         self.env = cp.JustBalanceTask()
         self.env.N = 1000
         self.env.randomInitialization = True
@@ -32,7 +32,10 @@ class carpoleEnv(Env):
         self.perf_rew = []
         self.perf_noNoise = []
         self.tmp = []
-        self.plot = result_plot()
+        if logger == None:
+            self.plot = result_plot()
+        else:
+            self.plot = logger
     
     def state(self):
         return [self.env.getObservation()]

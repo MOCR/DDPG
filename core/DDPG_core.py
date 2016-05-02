@@ -31,7 +31,7 @@ def void_env_stop_signial():
     return False
 
 class DDPG(object):
-    """First version of DDPG implementation"""
+    """DDPG's main structure implementation"""
     
     def __init__(self, env, actor = None, critic = None):
         self.env = env
@@ -171,6 +171,8 @@ class DDPG(object):
 #                self.time0 = 0
 #                self.time1 = 0
 #                self.time2 = 0
+        if self.env.isFinished():
+            self.env.reset()
     def buffer_flush(self):
         self.buffer = []
             

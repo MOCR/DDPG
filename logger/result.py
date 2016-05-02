@@ -14,12 +14,14 @@ import numpy as np
 import DDPG as ddep
 
 class result_log:
-    def __init__(self, algo, l1, l2):
+    def __init__(self, algo, l1, l2, idString = "", rate=0):
         self.algo = algo
         self.l1 = l1
         self.l2 = l2
         self.log = [[],[],[], []]
+        self.idString = idString
         self.firstTime = -1
+        self.rate=rate
     def addData(self, totStep, t, rew, realTime = None):
         self.log[0].append(totStep)
         self.log[1].append(t)
@@ -142,12 +144,18 @@ class result_log:
             
         
     def save(self, filename=None):
-        path = ddep.__path__[0]
         if filename == None:
+            path = ddep.__path__[0]
+            if not os.path.exists(path+"/results/"+self.idString):
+                try:
+                    os.makedirs(path+"/results/"+self.idString)
+                except OSError as exc: # Guard against race condition
+                    print "Error creating dir"
+                    raise
             i = 0
-            while(os.path.exists(path+"/results/"+self.algo+"_"+str(self.l1)+"_"+str(self.l2)+"_"+str(i)+".log")):
+            while(os.path.exists(path+"/results/"+self.idString+"/"+self.algo+"_"+str(self.l1)+"_"+str(self.l2)+"_"+str(i)+".log")):
                 i+=1
-            filename = path+"/results/"+self.algo+"_"+str(self.l1)+"_"+str(self.l2)+"_"+str(i)+".log"
+            filename = path+"/results/"+self.idString+"/"+self.algo+"_"+str(self.l1)+"_"+str(self.l2)+"_"+str(i)+".log"
         print "Log saved as : ", filename
         f = open(filename, 'w')
         pickle.dump(self, f, protocol=pickle.HIGHEST_PROTOCOL)

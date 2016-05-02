@@ -19,10 +19,15 @@ import DDPG.environement.instance.mountainCarEnv as mc
 from DDPG.core.networks.simple_actor_network import simple_actor_network
 
 import matplotlib.pyplot as plt
+from DDPG.logger.result import result_log
 
+l1 = 20
+l2 = 10
 
-env = mc.MountainCarEnv()
-a_c = DDPG(env, actor = simple_actor_network(2, 1, l1_size = 20, l2_size = 10, learning_rate = 0.001))
+logger = result_log("DDPG", l1, l2, "simple_"+str(l1)+"_"+str(l2))
+
+env = mc.MountainCarEnv(logger)
+a_c = DDPG(env, actor = simple_actor_network(2, 1, l1_size = l1, l2_size = l2, learning_rate = 0.001))
     
 def draw_politic():
     plt.close()

@@ -15,7 +15,7 @@ from DDPG.logger.result import result_log
 
 class MountainCarEnv(Env):
     print_interval = 100
-    def __init__(self):
+    def __init__(self, logger = None):
         self.env = MountainCar()
         self.noiseRange = 1.0
         self.om = 0
@@ -25,7 +25,10 @@ class MountainCarEnv(Env):
         self.totStep = 0
         self.r = 0
         self.ep = 0
-        self.perfs = result_log(algo="DDPG", l1=20, l2=10)
+        if logger==None:
+            self.perfs = result_log(algo="DDPG", l1=20, l2=10)
+        else:
+            self.perfs = logger
         self.actif = True
         #self.plot = result_plot()
     
