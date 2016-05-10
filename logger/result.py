@@ -7,6 +7,8 @@ Created on Tue Apr 19 13:07:46 2016
 
 import pickle
 import os.path
+from os import listdir
+from os.path import isfile, join
 import matplotlib.pyplot as plt
 import time
 import numpy as np
@@ -81,16 +83,46 @@ class result_log:
         
         plt.show(block=False)
         
-        
+    @staticmethod
+    def load_dir(path = "."):
+        files = [f for f in listdir(path) if isfile(join(path, f))]
+        logs = []
+        for f in files:
+            if f.endswith(".log"):
+                logs.append(result_log.load(path+"/"+f))
+        return logs
+    @staticmethod          
+    def sortConcat(logs):
+        sorted_logs = []
+        for l in logs:
+            assigned = False
+            for sl in sorted_logs:
+                if sl[0].algo == l.algo and sl[0].l1 == l.l1 and sl[0].l2 == l.l2 and ((not hasattr(l, "rate") and not hasattr(sl[0], "rate")) or (sl[0].rate == l.rate))  and ( (not hasattr(l, "idString") and not hasattr(sl[0], "idString")) or (sl[0].idString == l.idString)):
+                    sl.append(l)
+                    assigned = True
+            if assigned == False:
+                sorted_logs.append([l])
+        concat_logs = []
+        for l in sorted_logs:
+            concat_logs.append(result_log.concatLogs(l))
+        return concat_logs
     @staticmethod
     def concatLogs(logs):
         algo = logs[0].algo
         l1 = logs[0].l1
         l2 = logs[0].l2
+        if hasattr(logs[0], "rate"):
+            rate = logs[0].rate
+        else:
+            rate = float('nan')
+        if hasattr(logs[0], "idString"):
+            idString = logs[0].idString
+        else:
+            idString = "[UNSPECIFIED]"
         for l in logs:
             if l.algo != algo or l.l1 != l1 or l.l2 != l2:
                 print "[WARNING] : Concatening different setups!"
-        res = result_log(algo, l1, l2)
+        res = result_log(algo, l1, l2, idString, rate)
         end = float("inf")
         endi = 0
         indexs = []

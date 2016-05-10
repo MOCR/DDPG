@@ -12,7 +12,7 @@ import tensorflow as tf
 class simple_actor_network(actor_network):
     l1_size = 20
     l2_size = 10
-    learning_rate = 0.0001
+    learning_rate = 0.001
     ts = 0.001
     """A first actor network for low-dim state"""
     def __init__(self, state_size, action_size,l1_size = 300, l2_size = 200, learning_rate = 0.0001):
@@ -54,7 +54,7 @@ class simple_actor_network(actor_network):
             self.params = [self.W1, self.W2, self.W3, self.b1, self.b2, self.b3]
             self.params_grad = tf.gradients(self.action_output, self.params, -self.action_gradient) 
             
-            self.adam = tf.train.AdamOptimizer(simple_actor_network.learning_rate)        
+            self.adam = tf.train.AdamOptimizer(learning_rate)        
             self.optimizer = tf.train.GradientDescentOptimizer(learning_rate)
             self.updater = self.adam.apply_gradients(zip(self.params_grad, self.params))        
             

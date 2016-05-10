@@ -14,10 +14,11 @@ from DDPG.logger.result import result_log
 #from result_plot import result_plot
 
 class MountainCarEnv(Env):
-    print_interval = 100
+    print_interval = 1
     def __init__(self, logger = None):
         self.env = MountainCar()
         self.noiseRange = 1.0
+        self.noiseMax = 1.0
         self.om = 0
         self.alpha = 0.6
         self.beta = 0.4
@@ -54,7 +55,7 @@ class MountainCarEnv(Env):
         if not noise:
             self.noiseRange = 0.0
         else:
-            self.noiseRange = random.uniform(0.,1.0)
+            self.noiseRange = random.uniform(0.,self.noiseMax)
     def noise_func(self):
         self.om = self.om-self.alpha*self.om + self.beta*random.gauss(0,1)*self.noiseRange
         return self.om
@@ -71,7 +72,7 @@ class MountainCarEnv(Env):
     def getActionBounds(self):
         return [[1.2], [-1.2]]
     def printEpisode(self):
-        print time.strftime("[%H:%M:%S]"), " Episode : " , self.ep, " steps : ", self.t, " reward : ", self.r
+        print time.strftime("[%H:%M:%S]"), " Episode : " , self.ep, " steps : ", self.t, " reward : ", self.r, "noise : ", self.noiseRange
     def performances(self):
         pass#self.plot.clear()
         #self.plot.add_row(self.perfs)

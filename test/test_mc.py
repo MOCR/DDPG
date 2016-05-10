@@ -59,7 +59,7 @@ def perfs():
 def voidFunc():
     pass
 
-env.extern_draw = voidFunc
+env.extern_draw = draw_politic
 def draw_buffer():
     for i in range(len(a_c.buffer)):
         plt.scatter((a_c.buffer[i][0][0]+1.)*100, (a_c.buffer[i][0][1]+1.)*100)
