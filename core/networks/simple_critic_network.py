@@ -15,9 +15,7 @@ class simple_critic_network(critic_network):
     l2_size = 100
     learning_rate = 0.0001
     ts = 0.001
-    def __init__(self, state_size, action_size, action_bound = None):
-        l1_size = simple_critic_network.l1_size
-        l2_size = simple_critic_network.l2_size
+    def __init__(self, state_size, action_size, action_bound = None, l1_size = 200, l2_size = 100, learning_rate = 0.0001):
         
         self.graph = tf.Graph()
         with self.graph.as_default():
@@ -62,7 +60,7 @@ class simple_critic_network(critic_network):
             #self.params = [self.W1, self.W2, self.W2_action, self.W3, self.b1, self.b2, self.b3]
             #self.params_grad = tf.gradients(self.diff, self.params)
             
-            self.adam = tf.train.AdamOptimizer(simple_critic_network.learning_rate)       
+            self.adam = tf.train.AdamOptimizer(learning_rate)       
             self.optimizer = self.adam.minimize(self.diff)
             
             init = tf.initialize_all_variables()

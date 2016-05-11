@@ -28,6 +28,7 @@ logger = result_log("DDPG", l1, l2, "simple_"+str(l1)+"_"+str(l2))
 
 env = mc.MountainCarEnv(logger)
 a_c = DDPG(env, actor = simple_actor_network(2, 1, l1_size = l1, l2_size = l2, learning_rate = 0.001))
+a_c.train_loop_size = 4
     
 def draw_politic():
     plt.close()
