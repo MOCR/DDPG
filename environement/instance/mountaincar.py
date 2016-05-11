@@ -39,6 +39,7 @@ class MountainCar(EpisodicTask):
         self.cumreward = 0
         self.maxpos = 0
         self.minpos = 0
+        self.power = 0.0015
 
     def reset(self):
         self.state = self.GetInitialState()
@@ -140,7 +141,7 @@ class MountainCar(EpisodicTask):
         bsleft = -0.07
         bsright = 0.07
 
-        speedt1 = speed + (0.0015 * force) + (-0.0025 * cos(3.0 * position))
+        speedt1 = speed + (self.power * force) + (-0.0025 * cos(3.0 * position))
         #print speedt1
         
         if speedt1 < bsleft:
