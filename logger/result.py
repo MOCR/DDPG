@@ -48,21 +48,23 @@ class result_log:
         else:
             plt.plot(self.log[0], self.log[2])
         plt.show(block = False)
-    def meanPlot(self, scale, xIndex = 0, yIndex = 1):
+    def meanPlot(self, scale, space=None, xIndex = 0, yIndex = 1):
         i=0
         nxti = 0
         num = 0
         sumTimes = 0
         numItems = 0
         setNxt = False
+        if space == None:
+            space = scale
         x = []
         y = []
         error = [[], []]
         tmp = []
         while i<len(self.log[xIndex]):
-            if self.log[xIndex][i]>(num+1)*scale:
+            if self.log[xIndex][i]>num*space+scale:
                 if numItems != 0:
-                    x.append(num*scale)
+                    x.append(num*space)
                     y.append(np.percentile(tmp,50))
                     error[0].append(np.percentile(tmp,25))
                     error[1].append(np.percentile(tmp,75))
@@ -71,14 +73,14 @@ class result_log:
                     tmp = []
                     numItems = 0
                     setNxt = False
-            if self.log[xIndex][i]>=(num-1)*scale:
+            if self.log[xIndex][i]>=num*space-scale:
                 tmp.append(self.log[yIndex][i])
                 numItems+= 1
                 if not setNxt:
                     setNxt = True
                     nxti = i
             i+=1
-        c = plt.plot(x, y, zorder = 10)[0].get_color()
+        c = plt.plot(x, y, zorder = 10, label=self.algo)[0].get_color()
         plt.fill_between(x, error[0], error[1], color=c, alpha='0.25', zorder = 0)
         
         plt.show(block=False)
