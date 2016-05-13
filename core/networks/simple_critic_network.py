@@ -15,7 +15,7 @@ class simple_critic_network(critic_network):
     l2_size = 100
     learning_rate = 0.0001
     ts = 0.001
-    def __init__(self, state_size, action_size, action_bound = None, l1_size = 200, l2_size = 100, learning_rate = 0.0001):
+    def __init__(self, state_size, action_size, action_bound = None, l1_size = 200, l2_size = 100, learning_rate = 0.0001, gamma = 0.99):
         
         self.graph = tf.Graph()
         with self.graph.as_default():
@@ -96,10 +96,9 @@ class simple_critic_network(critic_network):
             self.batch_val = []
             
             
-            self.gamma = 0.99
             self.rewards = tf.placeholder(tf.float32, [None, 1])
             self.q_vals_batch = tf.placeholder(tf.float32, [None, 1])
-            self.y_opp = self.rewards + self.q_vals_batch*self.gamma
+            self.y_opp = self.rewards + self.q_vals_batch*gamma
     def q_val(self, state, action, target=False):
         """return the estimated q value of the couple state-action"""
         if(target):
