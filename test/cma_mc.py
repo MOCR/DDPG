@@ -51,33 +51,42 @@ x=  CMA_obj.act.linear_parameters()
 fx = cma.fmin(CMA_obj, x, 0.5, options = op)
 
 term_callback.plot_data.save()
-##print fx[0]
-#a_c = DDPG_core.DDPG(CMA_obj.env)
-#a_c.actor.load_parameters(fx[0])
-#
-#def draw_politic():
-#    plt.close()
-#    ac= a_c
-#    img = np.zeros((200, 200))
-#    pos = -1.
-#    batch = []
-#    for i in range(200):
-#        vel = -1.
-#        pos += 0.01
-#        for j in range(200):
-#            vel += 0.01
-#            batch.append([pos, vel])
-#    pol = ac.react(batch)
-#    b=0           
-#    print "politic max : ", max(pol), " politic min : ", min(pol)
-#    for i in range(200):
-#        for j in range(200):
-#            img[j][i] = max(-1, min(1.0, pol[b]))
-#            b += 1
-#    img[0][0] = -1
-#    img[-1][-1] = 1.0
-#    plt.imshow(img)
-#    plt.show(block=False)
+
+def draw_politic():
+    plt.close()
+    act = CMA_obj.act
+    img = np.zeros((200, 200))
+    pos = -1.
+    batch = []
+    for i in range(200):
+        vel = -1.
+        pos += 0.01
+        for j in range(200):
+            vel += 0.01
+            batch.append([pos, vel])
+    pol = act.action_batch(batch)
+    b=0           
+    print "politic max : ", max(pol), " politic min : ", min(pol)
+    for i in range(200):
+        for j in range(200):
+            img[-j][i] = max(-1, min(1.0, pol[b]))
+            b += 1
+    img[0][0] = -1
+    img[-1][-1] = 1.0
+    plt.imshow(img, extent=(-1.0,1.0,-1.0,1.0))
+    plt.show(block=False)
+    
+def draw_episode():
+    act = CMA_obj.act
+    env = CMA_obj.env
+    env.reset()
+    env.noiseRange=0.0
+    while not env.isFinished():
+        plt.scatter((env.state()[0][0]),(env.state()[0][1]), c="white")
+        env.act(act.action_batch(env.state()))
+        
+draw_politic()
+draw_episode()
 #    
 ##draw_politic()
 #CMA_obj.env.extern_draw = draw_politic
