@@ -94,7 +94,7 @@ class result_log:
                 logs.append(result_log.load(path+"/"+f))
         return logs
     @staticmethod          
-    def sortConcat(logs):
+    def sortConcat(logs, sortIndex=0):
         sorted_logs = []
         for l in logs:
             assigned = False
@@ -106,10 +106,10 @@ class result_log:
                 sorted_logs.append([l])
         concat_logs = []
         for l in sorted_logs:
-            concat_logs.append(result_log.concatLogs(l))
+            concat_logs.append(result_log.concatLogs(l, sortIndex))
         return concat_logs
     @staticmethod
-    def concatLogs(logs):
+    def concatLogs(logs, sortIndex = 0):
         algo = logs[0].algo
         l1 = logs[0].l1
         l2 = logs[0].l2
@@ -130,13 +130,13 @@ class result_log:
         indexs = []
         for i in range(len(logs)):
             indexs.append(0)
-            if logs[i].log[0][-1]<end:
-                end = logs[i].log[0][-1]
+            if logs[i].log[sortIndex][-1]<end:
+                end = logs[i].log[sortIndex][-1]
                 endi = i
         i = 0
-        while logs[endi].log[0][indexs[endi]]<end:
+        while logs[endi].log[sortIndex][indexs[endi]]<end:
             for ii in range(len(logs)):
-                if logs[ii].log[0][indexs[ii]]<logs[i].log[0][indexs[i]]:
+                if logs[ii].log[sortIndex][indexs[ii]]<logs[i].log[sortIndex][indexs[i]]:
                     i = ii
             res.addData(logs[i].log[0][indexs[i]], logs[i].log[1][indexs[i]],logs[i].log[2][indexs[i]], logs[i].log[3][indexs[i]])
             indexs[i] += 1

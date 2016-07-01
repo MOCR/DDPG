@@ -17,6 +17,7 @@ import numpy as np
 
 import DDPG.environement.instance.mountainCarEnv as mc
 from DDPG.core.networks.simple_actor_network import simple_actor_network
+from DDPG.core.networks.simple_critic_network import simple_critic_network
 
 import matplotlib.pyplot as plt
 from DDPG.logger.result import result_log
@@ -27,8 +28,7 @@ l2 = 10
 logger = result_log("DDPG", l1, l2, "simple_"+str(l1)+"_"+str(l2))
 
 env = mc.MountainCarEnv(logger)
-a_c = DDPG(env, actor = simple_actor_network(2, 1, l1_size = l1, l2_size = l2, learning_rate = 0.001))
-a_c.train_loop_size = 4
+a_c = DDPG(env, actor = simple_actor_network(2, 1, l1_size = l1, l2_size = l2, learning_rate = 0.005), critic = simple_critic_network(2, 1, l1_size = 20, l2_size = 10, learning_rate = 0.01))
     
 def draw_politic():
     plt.close()
@@ -47,12 +47,19 @@ def draw_politic():
     print "politic max : ", max(pol), " politic min : ", min(pol)
     for i in range(200):
         for j in range(200):
-            img[j][i] = max(-1, min(1.0, pol[b]))
+            img[-j][i] = max(-1, min(1.0, pol[b]))
             b += 1
     img[0][0] = -1
     img[-1][-1] = 1.0
-    plt.imshow(img)
+    plt.imshow(img, extent=(-1.0,1.0,-1.0,1.0))
     plt.show(block=False)
+def draw_episode():
+    act = a_c.actor
+    env.reset()
+    env.noiseRange=0.0
+    while not env.isFinished():
+        plt.scatter((env.state()[0][0]),(env.state()[0][1]), c="white")
+        env.act(act.action_batch(env.state()))
 
 def perfs():
     env.performances()
@@ -60,7 +67,7 @@ def perfs():
 def voidFunc():
     pass
 
-env.extern_draw = draw_politic
+env.extern_draw = voidFunc
 def draw_buffer():
     for i in range(len(a_c.buffer)):
         plt.scatter((a_c.buffer[i][0][0]+1.)*100, (a_c.buffer[i][0][1]+1.)*100)
