@@ -1,4 +1,4 @@
-This TensorFlow version of DDPG has been written during the master's thesis of Arnaud de Froissard de Broissia, under the supervision of ![Olivier Sigaud](http://people.isir.upmc.fr/sigaud).
+This TensorFlow version of DDPG has been written during the master's thesis of Arnaud de Froissard de Broissia, under the supervision of [Olivier Sigaud](http://people.isir.upmc.fr/sigaud).
 
 It was used to obtain the results described in the following paper:
 http://arxiv.org/abs/1606.09152
