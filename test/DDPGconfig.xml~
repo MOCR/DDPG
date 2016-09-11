@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<setup>
+  <actorParams>
+  	<layer1_size>200</layer1_size>
+  	<layer2_size>100</layer2_size>
+  	<learning_rate>0.001</learning_rate>
+  	<actor_tracking_rate>0.01</actor_tracking_rate>
+  </actorParams>
+  <criticParams>
+  	<layer1_size>200</layer1_size>
+  	<layer2_size>100</layer2_size>
+  	<learning_rate>0.0005</learning_rate>
+  	<critic_tracking_rate>0.001</critic_tracking_rate>
+  	<gamma>0.99</gamma>
+  	<regularization>0.001</regularization>
+  </criticParams>
+  <miscParams>
+    <buffersize>100000</buffersize>
+    <buffermin>100</buffermin>
+    <minibatchsize>64</minibatchsize>
+    <gradmode>true</gradmode>
+    <print_interval>1</print_interval>
+    <max_steps>999</max_steps>
+    <train>true</train>
+    <render>false</render>
+    <draw_policy>false</draw_policy>
+    <tensorboard>false</tensorboard>
+  </miscParams>
+</setup>

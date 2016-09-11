@@ -1,20 +1,14 @@
 # -*- coding: utf-8 -*-
 """
-Created on Mon Apr 11 14:11:45 2016
-
-@author: arnaud
-"""
-
-# -*- coding: utf-8 -*-
-"""
-Created on Wed Feb 24 10:00:45 2016
+ A test of DDPG on the pybrain cartpole environment
+TODO: replace with the gym cartpole
 
 @author: debroissia
 """
 
 from DDPG.core.DDPG_core import DDPG
 
-import DDPG.environement.instance.doublecartpoleEnv as cpe
+import DDPG.environment.instance.cartpoleEnv as cpe
 
 
 env = cpe.carpoleEnv()

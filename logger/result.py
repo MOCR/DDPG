@@ -13,9 +13,10 @@ import matplotlib.pyplot as plt
 import time
 import numpy as np
 
-import DDPG as ddep
+import DDPG as ddpg
 
 class result_log:
+
     def __init__(self, algo, l1, l2, idString = "", rate=0):
         self.algo = algo
         self.l1 = l1
@@ -24,6 +25,7 @@ class result_log:
         self.idString = idString
         self.firstTime = -1
         self.rate=rate
+
     def addData(self, totStep, t, rew, realTime = None):
         self.log[0].append(totStep)
         self.log[1].append(t)
@@ -36,18 +38,21 @@ class result_log:
                 self.log[3].append(time.time()-self.firstTime)
         else:
             self.log[3].append(realTime)
+
     def plotTime(self, realTime =False):
         if realTime:
             plt.plot(self.log[3], self.log[1])
         else:
             plt.plot(self.log[0], self.log[1])
         plt.show(block = False)
+
     def plotReward(self, realTime =False):
         if realTime:
             plt.plot(self.log[3], self.log[2])
         else:
             plt.plot(self.log[0], self.log[2])
         plt.show(block = False)
+
     def meanPlot(self, scale, space=None, xIndex = 0, yIndex = 1):
         i=0
         nxti = 0
@@ -93,6 +98,7 @@ class result_log:
             if f.endswith(".log"):
                 logs.append(result_log.load(path+"/"+f))
         return logs
+
     @staticmethod          
     def sortConcat(logs, sortIndex=0):
         sorted_logs = []
@@ -108,6 +114,7 @@ class result_log:
         for l in sorted_logs:
             concat_logs.append(result_log.concatLogs(l, sortIndex))
         return concat_logs
+
     @staticmethod
     def concatLogs(logs, sortIndex = 0):
         algo = logs[0].algo
@@ -123,7 +130,7 @@ class result_log:
             idString = "[UNSPECIFIED]"
         for l in logs:
             if l.algo != algo or l.l1 != l1 or l.l2 != l2:
-                print "[WARNING] : Concatening different setups!"
+                print ("[WARNING] : Concatening different setups!")
         res = result_log(algo, l1, l2, idString, rate)
         end = float("inf")
         endi = 0
@@ -141,6 +148,7 @@ class result_log:
             res.addData(logs[i].log[0][indexs[i]], logs[i].log[1][indexs[i]],logs[i].log[2][indexs[i]], logs[i].log[3][indexs[i]])
             indexs[i] += 1
         return res
+
     @staticmethod
     def moyenLog(l, scale):
         i=0
@@ -173,27 +181,25 @@ class result_log:
                     nxti = i
             i+=1
         return res
-            
-            
-            
         
     def save(self, filename=None):
         if filename == None:
-            path = ddep.__path__[0]
+            path = ddpg.__path__[0]
             if not os.path.exists(path+"/results/"+self.idString):
                 try:
                     os.makedirs(path+"/results/"+self.idString)
                 except OSError as exc: # Guard against race condition
-                    print "Error creating dir"
+                    print ("Error creating dir")
                     raise
             i = 0
             while(os.path.exists(path+"/results/"+self.idString+"/"+self.algo+"_"+str(self.l1)+"_"+str(self.l2)+"_"+str(i)+".log")):
                 i+=1
             filename = path+"/results/"+self.idString+"/"+self.algo+"_"+str(self.l1)+"_"+str(self.l2)+"_"+str(i)+".log"
-        print "Log saved as : ", filename
+        print ("Log saved as : ", filename)
         f = open(filename, 'w')
         pickle.dump(self, f, protocol=pickle.HIGHEST_PROTOCOL)
         f.close()
+
     @staticmethod
     def load(filename):
         f = open(filename, 'r')

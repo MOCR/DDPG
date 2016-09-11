@@ -1,9 +1,0 @@
-To install DDPG (two ways):
-
-First methode : 
-	1)Clone repository somewhere.
-	2)add to your .bashrc file : export PYTHONPATH=$PYTHONPATH:(path of the DDPG directory's parent)
-
-Second methode :
-	1)In a terminal type "echo $PYTHONPATH"
-	2)Clone the repository to the directory indicated by PYTHONPATH

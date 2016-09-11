@@ -1,0 +1,18 @@
+Metadata-Version: 1.1
+Name: natgrid
+Version: 0.2.1
+Summary: Python interface to NCAR natgrid library
+Home-page: http://matplotlib.sourceforge.net/toolkits.html
+Author: Jeff Whitaker
+Author-email: jeffrey.s.whitaker@noaa.gov
+License: Restricted
+Download-URL: http://sourceforge.net/projects/matplotlib
+Description: UNKNOWN
+Keywords: python,plotting,plots,graphs,charts,GIS,mapping,map projections,maps
+Platform: any
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Science/Research
+Classifier: License :: OSI Approved
+Classifier: Topic :: Scientific/Engineering :: Visualization
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Classifier: Operating System :: OS Independent

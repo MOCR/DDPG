@@ -1,0 +1,5 @@
+version 0.2:
+* updated c code from NCL 5.2.0.  Now automatically removes duplicate points.
+version 0.1:
+* initial release. c source code from NCL 5.0.0.
+
