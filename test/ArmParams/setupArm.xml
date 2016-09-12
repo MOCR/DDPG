@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<setup>
+  <data>
+  	<inputSize>4</inputSize>
+  	<outputSize>6</outputSize>
+  	<noise>no</noise>
+  </data>
+  <costFunction type='CostCMAES'>
+    <gamma>0.6</gamma>
+    <rho>3000</rho>
+    <upsilon>1</upsilon>
+  </costFunction>
+  <target>
+    <sizes>
+      <size>0.005</size>
+      <size>0.01</size>
+      <size>0.02</size>
+      <size>0.04</size>
+    </sizes>
+    <coordinate>
+      <x>0.0</x>
+      <y>0.6175</y>
+    </coordinate>
+  </target>
+  <trajectory>
+    <initialPosition>PosCircu15</initialPosition>
+    <maxStep>300</maxStep>
+    <timeStep>0.002</timeStep>
+  </trajectory>
+  <estimation type='Inv'>
+  	<delay>10</delay>
+  </estimation>
+</setup>

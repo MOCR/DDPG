@@ -27,19 +27,19 @@ def run(agent,env,draw,render):
         if (render):
             env._render()
         steps+=1
-    return global_reward
+    return 1000-steps+global_reward
 
 def draw_policy(agent,env):
     plt.close()
     img = np.zeros((200, 200))
-    pos = -1.4
+    pos = -1.2
     batch = []
     for i in range(200):
         vel = -0.7
+        pos += 0.01
         for j in range(200):
             vel += 0.007
             batch.append([pos, vel])
-        pos += 0.01
     pol = agent.get_actions_from_batch(batch)
     print ("policy min : ", min(pol)[0], "policy max : ", max(pol)[0])
     b=0           
@@ -50,7 +50,7 @@ def draw_policy(agent,env):
     plt.imshow(img, extent=(-1.2,0.8,-1.0,1.0))
 #    draw_buffer(agent)
     draw_episode(agent,env)
-    plt.show()
+    plt.show(block=False)
 
 def transfo(x,y):
     return x,2*y

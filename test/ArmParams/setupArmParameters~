@@ -1,0 +1,30 @@
+Arm length(float)(m):0.3
+ForeArm length(float)(m):0.35
+Arm mass(float)(kg):1.4
+ForeArm mass(float)(kg):1.1
+Arm inertia(float)(kg.m^2):0.11
+ForeArm inertia(float)(kg.m^2):0.16
+Distance from the center of segment 1 to its center of mass(float)(m):0.025
+Distance from the center of segment 2 to its center of mass(float)(m):0.045
+Damping term k6(float):0.05
+Damping term k7(float):0.025
+Damping term k8(float):0.025
+Damping term k9(float):0.05
+Maximum force exerted by the shoulder flexor, fmax1(int):700
+Maximum force exerted by the shoulder extensor, fmax2(int):382
+Maximum force exerted by the elbow flexor, fmax3(int):572
+Maximum force exerted by the elbow extensor, fmax4(int):445
+Maximum force exerted by the double-joints flexor, fmax5(int):159
+Maximum force exerted by the double-joints extensor, fmax6(int):318
+Moment arm matrix, a1:0.04
+Moment arm matrix, a2:-0.04
+Moment arm matrix, a3:0.0
+Moment arm matrix, a4:0.0
+Moment arm matrix, a5:0.028
+Moment arm matrix, a6:-0.035
+Moment arm matrix, a7:0.0
+Moment arm matrix, a8:0.0
+Moment arm matrix, a9:0.025
+Moment arm matrix, a10:-0.025
+Moment arm matrix, a11:0.028
+Moment arm matrix, a12:-0.035

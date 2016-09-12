@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Arm>
+	<Setup>
+		<Length unit="m" type="float">
+			<Arm name="l1">0.3</Arm>
+			<ForeArm name="l2">0.35</ForeArm>
+		</Length>
+		<Mass unit="kg" type="float">
+			<Arm name="m1">1.4</Arm>
+			<ForeArm name="m2">1.1</ForeArm>
+		</Mass>
+		<Inertia unit="kg.m2" type="float">
+			<Arm name="I1">0.025</Arm>
+			<ForeArm name="I2">0.045</ForeArm>
+		</Inertia>
+		<DistanceCenterBarycenter unit="m" type="float">
+			<Arm name="s1">0.11</Arm>
+			<ForeArm name="s2">0.16</ForeArm>
+		</DistanceCenterBarycenter>
+	</Setup>
+	<DampingTerm type="float">
+		<b1>0.05</b1>
+		<b2>0.025</b2>
+		<b3>0.025</b3>
+		<b4>0.05</b4>
+	</DampingTerm>
+	<MomentMatrix type="float">
+		<a1>0.04</a1>
+		<a2>-0.04</a2>
+		<a3>0.0</a3>
+		<a4>0.0</a4>
+		<a5>0.028</a5>
+		<a6>-0.035</a6>
+		<a7>0.0</a7>
+		<a8>0.0</a8>
+		<a9>0.025</a9>
+		<a10>-0.025</a10>
+		<a11>0.028</a11>
+		<a12>-0.035</a12>
+	</MomentMatrix>
+	<Bounds type="float">
+		<Shoulder>
+			<Lower name="slb">-0.6</Lower>
+			<Upper name="sub">2.6</Upper>
+		</Shoulder>
+		<Elbow>
+			<Lower name="elb">-0.2</Lower>
+			<Upper name="eub">3.0</Upper>
+		</Elbow>
+	</Bounds>
+</Arm>

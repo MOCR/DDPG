@@ -13,38 +13,41 @@ import math
 from DDPG.test.helpers.draw import draw_policy, run
 from DDPG.core.helpers.Chrono import Chrono
 
+from simple_keras_net import Keras_NN
+
 import matplotlib.pyplot as plt
 from matplotlib.mlab import griddata
 from matplotlib import cm
 
-from simple_keras_net import Keras_NN
+plt.rc("figure", facecolor="white")
 
 import gym
 
-#env = gym.make('Pendulum-v0')
+#env = gym.make('MountainCarContinuous-v0')
+env = gym.make('Pendulum-v0')
+#env = gym.make('Acrobot-v0')
 layer_nb = 4
 sigma = 0.05
 
 numpoids1 = 2
 numpoids2 = 4
-scale = 4
+scale = 1
 
 class CMA():
 
-    def __init__(self):
+    def __init__(self,env):
         '''
 	Input:
         '''
-        self.env = gym.make('MountainCarContinuous-v0')
+        self.env = env
         self.env.reset(False)
-        self.controller = Keras_NN(2,1)
-        self.controller.load_theta('cma_agents/best_agent.theta958')
-        print (self.controller.get_weights(layer_nb))
+        self.controller = Keras_NN(env.observation_space.low.shape[0],env.action_space.low.shape[0])
+        self.controller.load_theta('cma_agents/best_agent.theta-2772.2691621')
         self.nb_episodes = 0
         self.options = cma.CMAOptions()
-        self.options['maxiter']=200
+        self.options['maxiter']=40
         self.options['popsize']=50
-        self.options['CMA_diagonal']=True
+#        self.options['CMA_diagonal']=True
         self.options['verb_log']=50
         self.options['verb_disp']=1
         self.best_perf = -10000.0
@@ -74,8 +77,8 @@ class CMA():
 
         self.draw_cost(self.controller,numpoids1,numpoids2,scale)
         
-        plt.scatter(self.best_x,self.best_y, c="black")
-        plt.plot(self.best_x,self.best_y, '-x',c="black")
+        plt.scatter(self.best_x,self.best_y, c="white")
+        plt.plot(self.best_x,self.best_y, '-x',c="white")
 
         plt.scatter(self.green_x,self.green_y, c="green")
         
@@ -98,10 +101,9 @@ class CMA():
     def draw_cost(self,agent,numpoids1,numpoids2,scale):
 
         self.xmin = -1.5
-        self.ymin = -1.5
+        self.ymin = -0.5
         self.xmax = 1.5
         self.ymax = 1.5
-
 
         w1 = self.xmin
         save1 = agent.get_param(layer_nb,numpoids1)
@@ -138,7 +140,8 @@ class CMA():
         t1 = plt.scatter(x0, y0, c=cost, marker=u'o', s=5)#cmap=cm.get_cmap('RdYlBu'))
         plt.contourf(xi, yi, zi, 15)#, cmap=cm.get_cmap('RdYlBu'))
         self.fig.colorbar(t1, shrink=0.5, aspect=5)
-        t1 = plt.scatter(x0, y0, c='b', marker=u'o', s=5)
+        #plot the interpolation points
+        #t1 = plt.scatter(x0, y0, c='b', marker=u'o', s=5)
 
     def draw_cost_landscape(self,agent,numpoids1,numpoids2,scale):
         x_range = self.xmax -self.xmin
@@ -200,5 +203,5 @@ class CMA():
         fx = cma.fmin(self.run_episode, x, sigma, options = self.options)
         self.final_draw()
         
-optim = CMA()
+optim = CMA(env)
 optim.call_cma()

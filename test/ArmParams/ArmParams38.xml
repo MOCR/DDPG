@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Arm>
+	<Setup>
+		<Length unit="m" type="float">
+			<Arm name="l1">0.3</Arm>
+			<ForeArm name="l2">0.35</ForeArm>
+			<Hand name="l3">0.2</Hand>
+		</Length>
+		<Mass unit="kg" type="float">
+			<Arm name="m1">1.4</Arm>
+			<ForeArm name="m2">1.1</ForeArm>
+			<Hand name="m3">0.6</Hand>
+		</Mass>
+		<Inertia unit="kg.m2" type="float">
+			<Arm name="I1">0.11</Arm>
+			<ForeArm name="I2">0.16</ForeArm>
+			<Hand name="I3">0.08</Hand>
+		</Inertia>
+		<DistanceCenterBarycenter unit="m" type="float">
+			<Arm name="s1">0.15</Arm>
+			<ForeArm name="s2">0.175</ForeArm>
+			<Hand name="s3">0.1</Hand>
+	    </DistanceCenterBarycenter>
+	</Setup>
+	<DampingTerm type="float">
+		<b1>0.05</b1>
+		<b2>0.025</b2>
+		<b3>0.025</b3>
+		<b4>0.025</b4>
+		<b5>0.05</b5>
+		<b6>0.025</b6>
+		<b7>0.025</b7>
+		<b8>0.025</b8>
+		<b9>0.05</b9>
+	</DampingTerm>
+	<MomentMatrix type="float">
+		<a1>0.04</a1>
+		<a2>-0.04</a2>
+		<a3>0.0</a3>
+		<a4>0.0</a4>
+		<a5>0.028</a5>
+		<a6>-0.035</a6>
+		<a7>0.0</a7>
+		<a8>0.0</a8>
+		<a9>0.0</a9>
+		<a10>0.0</a10>
+		<a11>0.025</a11>
+		<a12>-0.025</a12>
+		<a13>0.028</a13>
+		<a14>-0.035</a14>
+		<a15>0.0</a15>
+		<a16>0.0</a16>
+		<a17>0.0</a17>
+		<a18>0.0</a18>
+		<a19>0.0</a19>
+		<a20>0.0</a20>
+		<a21>0.0</a21>
+		<a22>0.0</a22>
+		<a23>0.02</a23>
+		<a24>-0.02</a24>
+	</MomentMatrix>
+	<Bounds type="float">
+		<Shoulder>
+			<Lower name="slb">-0.6</Lower>
+			<Upper name="sub">2.6</Upper>
+		</Shoulder>
+		<Elbow>
+			<Lower name="elb">-0.2</Lower>
+			<Upper name="eub">3.0</Upper>
+		</Elbow>
+		<Hand>
+			<Lower name="hlb">-1.0</Lower>
+			<Upper name="hub">1.2</Upper>
+		</Hand>
+	</Bounds>
+</Arm>

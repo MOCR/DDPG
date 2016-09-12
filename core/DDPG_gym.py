@@ -55,7 +55,6 @@ class DDPG_gym(object):
     
         inputs = create_input_layers([[None, s_dim],[None, a_dim],[None, 1], [None, s_dim]])
         
-        
         state_input=inputs[0]
         action_input=inputs[1]
         reward_input=inputs[2] 
@@ -194,18 +193,6 @@ class DDPG_gym(object):
                     max_nb_steps = self.nb_steps
                     print('***** nb steps',self.nb_steps)
                 else: print('nb steps',self.nb_steps)
-
-#            #tensorboard part
-#            if (self.config.tensorboard):
-#                summary_str = self.sess.run([self.merged],
-##                                       feed_dict=self.feed_dict_func(),
-#                                        options=self.run_options,
-#                                        run_metadata=self.run_metadata)
-#                print('summary',summary_str)
-#                self.train_writer.add_summary(summary_str, i)
-#                print('Adding run metadata for episode ', i)
-#                self.train_writer.add_run_metadata(self.run_metadata, 'step%03d' % i)
-#                self.train_writer.close()
 
 
     def train(self):

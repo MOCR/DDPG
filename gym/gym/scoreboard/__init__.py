@@ -30,6 +30,12 @@ add_group(
 )
 
 add_group(
+    id='motor_control',
+    name='Motor control',
+    description='Motor control problems.'
+)
+
+add_group(
     id='algorithmic',
     name='Algorithmic',
     description='Learn to imitate computations.',
@@ -178,6 +184,19 @@ This problem was first described by Andrew Moore in his PhD thesis [Moore90]_.
 
 .. [Moore90] A Moore, Efficient Memory-Based Learning for Robot Control, PhD thesis, University of Cambridge, 1990.
 Here, this is the continuous version.
+""",
+)
+
+add_task(
+    id='ArmModel-v0',
+    group='motor_control',
+    summary="Reaching movements with a 2D planar arm actuated with 6 muscles.",
+    description="""
+A 2D planar arm actuated with 6 muscles must reach a target from different starting positions.
+The controller should minimize the spent energy while reaching as fast and accurately as possible
+""",
+    background="""\
+A standard problem in the motor control literature.
 """,
 )
 

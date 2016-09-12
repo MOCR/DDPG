@@ -79,6 +79,13 @@ register(
 )
 
 register(
+    id='ArmModel-v0',
+    entry_point='gym.envs.motor_control:ArmModelEnv',
+    timestep_limit=999,
+    reward_threshold=90.0,
+)
+
+register(
     id='Pendulum-v0',
     entry_point='gym.envs.classic_control:PendulumEnv',
     timestep_limit=200,

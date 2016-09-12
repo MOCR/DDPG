@@ -17,21 +17,18 @@ import matplotlib.pyplot as plt
 
 from simple_keras_net import Keras_NN
 
-import gym
-
-#env = gym.make('Pendulum-v0')
 layer_nb = 2
 sigma = 0.5
 
 class CMA():
 
-    def __init__(self):
+    def __init__(self,env):
         '''
 	Input:
         '''
-        self.env = gym.make('MountainCarContinuous-v0')
+        self.env = env
         self.env.reset(False)
-        self.controller = Keras_NN(2,1)
+        self.controller = Keras_NN(env.observation_space.low.shape[0],env.action_space.low.shape[0])
         self.nb_episodes = 0
         self.options = cma.CMAOptions()
         self.options['maxiter']=200

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Muscle>
+	<MaximumForce type="int">
+		<shoulderFlexor name="fmax1">700</shoulderFlexor>
+		<shoulderExtensor name="fmax2">382</shoulderExtensor>
+		<elbowFlexor name="fmax3">572</elbowFlexor>
+		<elbowExtensor name="fmax4">445</elbowExtensor>
+		<double-jointFlexor name="fmax5">159</double-jointFlexor>
+		<double-jointExtensor name="fmax6">318</double-jointExtensor>
+		<handFlexor name="fmax7">50</handFlexor>
+		<handExtensor name="fmax8">50</handExtensor>
+	</MaximumForce>
+	<Knoise utility="deprecated" type="int">0.8</Knoise>
+</Muscle>

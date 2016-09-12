@@ -47,6 +47,7 @@ class Continuous_MountainCarEnv(gym.Env):
         self.observation_space = spaces.Box(self.low_state, self.high_state)
 
         self._seed()
+        self.deterministic = False
         self.reset()
 
     def _seed(self, seed=None):
@@ -79,8 +80,11 @@ class Continuous_MountainCarEnv(gym.Env):
         self.state = np.array([position, velocity])
         return self.state, reward, done, {}
 
-    def _reset(self,deterministic=False):
-        if (deterministic):
+    def _configure(self, deterministic=False):
+        self.deterministic = deterministic
+
+    def _reset(self):
+        if (self.deterministic):
             self.state = np.array([self.init_position, 0])
         else:
             self.state = np.array([self.np_random.uniform(low=self.init_position-0.1, high=self.init_position+0.1), 0])
@@ -123,6 +127,7 @@ class Continuous_MountainCarEnv(gym.Env):
             self.cartrans = rendering.Transform()
             car.add_attr(self.cartrans)
             self.viewer.add_geom(car)
+            
             frontwheel = rendering.make_circle(carheight/2.5)
             frontwheel.set_color(.5, .5, .5)
             frontwheel.add_attr(rendering.Transform(translation=(carwidth/4,clearance)))

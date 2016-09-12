@@ -16,23 +16,28 @@ from DDPG.core.helpers.read_xml_file import read_xml_file
 import gym
 env = gym.make('MountainCarContinuous-v0')
 config = read_xml_file("DDPGconfig.xml")
+env.configure(deterministic=True)
+
+#env = gym.make('Pendulum-v0')
+#env = gym.make('Acrobot-v0')
+
 monitor=False
 
 if (monitor):
     env.monitor.start('/home/sigaud/Bureau/sigaud/DDPG_gym/DDPG/log')
     env.monitor.configure(video_callable=lambda count: count % 100 == 0)
 
-#env = gym.make('Pendulum-v0')
 
 l1 = 20
 l2 = 10
 
 logger = result_log("DDPG", l1, l2, ""+str(l1)+"_"+str(l2))
-agent = DDPG_gym(env)
+agent = DDPG_gym(env,config)
 
 def doEp(M):
     agent.perform_M_episodes(M)
     draw_policy(agent,env)
+    agent.sess.close()
 
 def doInit():
     for i in range(10):
@@ -40,7 +45,7 @@ def doInit():
         draw_policy(agent,env)
 
 c=Chrono()
-doEp(50)
+doEp(5)
 if (monitor):
     env.monitor.close()
     gym.upload('/home/sigaud/Bureau/sigaud/DDPG_gym/DDPG/log', api_key='sk_oOTW8cLjQIeQeQdalZSApA')

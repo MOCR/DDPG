@@ -119,7 +119,7 @@ class Keras_NN():
         Output:     -fa_out: numpy N-D array, output approximated
         '''
         assert(len(state)==self.inputDim), "Keras_NN: Bad input format"
-        state = state.reshape((-1,2))
+        state = state.reshape((-1,self.inputDim))
         prediction = self.model.predict(state,batch_size=1)[0]
 #        print('prediction',prediction)
         return prediction
@@ -136,7 +136,7 @@ class Keras_NN():
         for i in range(len(states)):
             state = np.array(states[i])
             assert(len(state)==self.inputDim), "Keras_NN: Bad input format"
-            state = state.reshape((-1,2))
+            state = state.reshape((-1,self.inputDim))
             prediction = self.model.predict(state,batch_size=1)[0]
             retour.append(prediction)
         return retour

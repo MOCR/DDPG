@@ -121,7 +121,7 @@ class Env(object):
         done = self.monitor._after_step(observation, reward, done, info)
         return observation, reward, done, info
 
-    def reset(self,deterministic=False):
+    def reset(self):
         """
         Resets the state of the environment and returns an initial observation.
 
@@ -132,7 +132,7 @@ class Env(object):
             raise error.Error("{} requires calling 'configure()' before 'reset()'".format(self))
 
         self.monitor._before_reset()
-        observation = self._reset(deterministic)
+        observation = self._reset()
         self.monitor._after_reset(observation)
         return observation
 
