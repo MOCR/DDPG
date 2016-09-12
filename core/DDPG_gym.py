@@ -140,16 +140,25 @@ class DDPG_gym(object):
         perform one step
         nb_steps is the number of steps over this episode
         '''
-        action = self.action([[self.state]])[0]
-        noisy_action = self.noise_generator.add_noise(action)
+        action = self.get_noisy_action_from_state(self.state)
         next_state, reward, done, infos = self.env.step(noisy_action)
-        if self.config.train:
-            self.replay_buffer.store_one_sample(sample(self.state, noisy_action, reward, next_state))
-        self.nb_steps += 1
-        if self.config.render:
-            self.env._render()
+        self.store_sample(self.state, action, reward, next_state)
+        self.render()
         self.state = next_state
         return reward, done
+
+    def render(self):
+       if self.config.render:
+            self.env._render()
+            
+    def store_sample(self, state, action, reward, next_state):
+        if self.config.train:
+            self.replay_buffer.store_one_sample(sample(state, action, reward, next_state))
+
+    def get_noisy_action_from_state(self,state):
+        action = self.get_action_from_state(self.state)
+        self.nb_steps += 1
+        return self.noise_generator.add_noise(action)
     
     def perform_episode(self):
         '''
@@ -194,6 +203,10 @@ class DDPG_gym(object):
                     print('***** nb steps',self.nb_steps)
                 else: print('nb steps',self.nb_steps)
 
+    def train_loop(self):
+        if self.config.train:
+            for i in range(self.train_loop_size):
+                self.train()
 
     def train(self):
         if (self.replay_buffer.isFullEnough()):
