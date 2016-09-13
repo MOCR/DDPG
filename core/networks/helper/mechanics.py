@@ -24,6 +24,7 @@ def minimize_error(net,error, learning_rate):
         adam = tf.train.AdamOptimizer(learning_rate)
         optimizer = adam.minimize(error, var_list=net.params)
         init = []
+        variables = tf.all_variables()
         for v in variables:
             if not v.name in b_vars:
                 init.append(v)
@@ -46,6 +47,7 @@ def update_over_output_gradient(net, grad, learning_rate):
         adam = tf.train.AdamOptimizer(learning_rate)        
         updater = adam.apply_gradients(zip(params_grad, net.params))
         init = []
+        variables = tf.all_variables()
         for v in variables:
             if not v.name in b_vars:
                 init.append(v)

@@ -37,6 +37,7 @@ agent = DDPG_gym(env,config)
 def doEp(M):
     agent.perform_M_episodes(M)
     draw_policy(agent,env)
+    agent.sess.close()
 
 def doInit():
     for i in range(10):
@@ -44,7 +45,7 @@ def doInit():
         draw_policy(agent,env)
 
 c=Chrono()
-doEp(10)
+doEp(5)
 if (monitor):
     env.monitor.close()
     gym.upload('/home/sigaud/Bureau/sigaud/DDPG_gym/DDPG/log', api_key='sk_oOTW8cLjQIeQeQdalZSApA')

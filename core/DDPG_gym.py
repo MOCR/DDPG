@@ -21,7 +21,6 @@ from DDPG.core.networks.helper.operation_sequence import operation_sequence
 from DDPG.core.networks.helper.operate import operate
 
 from DDPG.core.networks.helper.network_tracking import track_network, copy_network
-from DDPG.core.helpers.read_xml_file import read_xml_file
 from DDPG.core.helpers.tensorflow_grad_inverter import grad_inverter
 
 class DDPG_gym(object):
@@ -96,8 +95,14 @@ class DDPG_gym(object):
         critic_update = minimize_error(self.critic, temporal_difference_error(self.critic, reward_input, self.target_critic.output), self.config.critic_learning_rate)
         
         action_grad = gradient_output_over_tensor(self.critic_a, self.actor.output)
+        """
+        grad_mod : if you want to do calculations on the action_gradient before
+                passing it to the actor (used mainly with gradient inverter to softly bound the actions)
+        see: http://arxiv.org/abs/1511.04143 
+        """
         if self.config.grad_mode:
             action_grad = grad_inverter(action_grad, self.actor.output)
+        
         deterministic_policy_gradient = update_over_output_gradient(self.actor, action_grad, self.config.actor_learning_rate)
 
         track_actor = track_network(self.actor, self.target_actor, self.config.actor_tracking_rate)
@@ -114,12 +119,6 @@ class DDPG_gym(object):
         self.train_loop_size = 1
         self.totStepTime = 0
         self.totTrainTime = 0
-
-        """
-        grad_mod : if you want to do calculations on the action_gradient before
-                passing it to the actor (used mainly with gradient inverter to softly bound the actions)
-        see: http://arxiv.org/abs/1511.04143 
-        """
 
     def get_actions_from_batch(self, state_batch):
         """
@@ -141,7 +140,7 @@ class DDPG_gym(object):
         nb_steps is the number of steps over this episode
         '''
         action = self.get_noisy_action_from_state(self.state)
-        next_state, reward, done, infos = self.env.step(noisy_action)
+        next_state, reward, done, infos = self.env.step(action)
         self.store_sample(self.state, action, reward, next_state)
         self.render()
         self.state = next_state
@@ -166,9 +165,11 @@ class DDPG_gym(object):
         numSteps is the number of steps over all episodes
         '''
         done = False
+        totReward = 0
         while self.nb_steps< self.config.max_steps and not done:
             stepTime = time.time()
             reward, done = self.step()
+            totReward+=reward
             self.totStepTime += time.time() - stepTime
             if self.config.train:
                 for i in range(self.train_loop_size):
@@ -178,7 +179,7 @@ class DDPG_gym(object):
                 self.numSteps+=1
         if self.config.draw_policy:
             draw_policy(self,self.env)
-        return done
+        return totReward, done
 
     def perform_M_episodes(self, M):
         '''
@@ -189,10 +190,10 @@ class DDPG_gym(object):
         for i in range(M):
             self.nb_steps = 0
             self.state = self.env.reset()
-            done = self.perform_episode()
+            reward, done = self.perform_episode()
             if i % self.config.print_interval == 0 and self.config.train:
                 self.stepsTime += self.totStepTime + self.totTrainTime
-                print('nb steps',self.nb_steps)
+                print('nb steps',self.nb_steps, " perf : ", reward)
                 print("Steps/minutes : " , 60.0*self.numSteps/self.stepsTime)               
                 self.totStepTime = 0
                 self.totTrainTime = 0
