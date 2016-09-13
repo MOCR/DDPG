@@ -36,7 +36,7 @@ class Arm(object):
     def setNoise(self, noise):
         self.musclesP.knoiseU=noise
         
-    def jointStop(self,q):
+    def joint_stop(self,q):
         '''
         Articular stop for the human arm
         The stops are included in the arm parameters file

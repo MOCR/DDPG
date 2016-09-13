@@ -24,6 +24,7 @@ class ReadXmlArmFile(object):
         self.targetParse(tree[2])
         self.trajectoryParse(tree[3])
         self.kalmanParse(tree[4])
+        self.outputFolderParse(tree[5])
     
     def dataParse(self, dataElement):
         self.inputDim=int(dataElement[0].text)
@@ -58,3 +59,6 @@ class ReadXmlArmFile(object):
         
     def kalmanParse(self, kalmanElement):
         self.delayUKF=int(kalmanElement[0].text)
+        
+    def outputFolderParse(self, output):
+        self.output_folder_name=output[0].text

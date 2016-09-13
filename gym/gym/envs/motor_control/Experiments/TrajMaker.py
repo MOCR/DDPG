@@ -136,25 +136,11 @@ class TrajMaker:
             cost += self.trajCost.computeStateTransitionCost(Unoisy)
             self.costU12+=self.trajCost.computeStateTransitionCostU12(Unoisy)
 
-            '''
-            print "U =", U
-            print "Unoisy =", Unoisy
-            print "estimstate =", estimState
-            #print "theta =", self.controller.theta
-            if math.isnan(cost):
-                print "NAN : U =", U
-                print "NAN : Unoisy =", Unoisy
-                print "NAN : estimstate =", estimState
-                #print "NAN : theta =", self.controller.theta
-                sys.exit()
-            '''
-
             #get dotq and q from the state vector
             dotq, q = self.arm.getDotQAndQFromStateVector(tmpState)
             coordElbow, coordHand = self.arm.mgdFull(q)
             #print ("dotq :",dotq)
             #computation of the coordinates to check if the target is reach or not
-            #code to save data of the trajectory
 
             #Note : these structures might be much improved
             if self.saveTraj == True: 

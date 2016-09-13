@@ -129,26 +129,23 @@ class ArmModelEnv(gym.Env):
 
         output_state = self.store_state(realNextState)
 
-        reward = 0
         cost, done = self.eval.compute_reward(self.arm, self.t, Unoisy, self.steps, coordHand, self.target_size)
         self.steps += 1
         self.t += self.rs.dt
 
-        stepStore = []
-        stepStore.append(self.state)
-        stepStore.append(Unoisy)
-        stepStore.append(action)
-        stepStore.append(realNextState)
-        stepStore.append([coordElbow[0], coordElbow[1]])
-        stepStore.append([coordHand[0], coordHand[1]])
-        tmpstore = np.array(stepStore).flatten()
-        row = [item for sub in tmpstore for item in sub]
+        step_dic = {}
+        step_dic['state'] = self.state
+        step_dic['Unoisy'] = Unoisy
+        step_dic['action'] = action
+        step_dic['realNextState'] = realNextState
+        step_dic['elbow'] = [coordElbow[0], coordElbow[1]]
+        step_dic['hand'] = [coordHand[0], coordHand[1]]
 
         if done:
             if  verbose:
                 print ('goal reached!')
 
-        return output_state, reward, done, row
+        return output_state, cost, done, step_dic
 
     def scale_x(self,x):
         return self.screen_width/2 + x*self.scale
@@ -181,8 +178,8 @@ class ArmModelEnv(gym.Env):
 #       arm_drawing.add_attr(rendering.Transform())
         self.viewer.add_onetime(arm_drawing)
 
-        xmin = self.rs.XTarget - self.target_size
-        xmax = self.rs.XTarget + self.target_size
+        xmin = self.rs.XTarget - self.target_size/2
+        xmax = self.rs.XTarget + self.target_size/2
         ytarg = self.rs.YTarget
         target = []
         target.append([self.scale_x(xmin),self.scale_y(ytarg)])

@@ -70,7 +70,7 @@ class Arm26(Arm):
         dotq += ddotq*self.dt
         q += dotq*self.dt
         #save the real state to compute the state at the next step with the real previous state
-        q = self.jointStop(q)
+        q = self.joint_stop(q)
         nextState = np.array([dotq[0], dotq[1], q[0], q[1]])
         return nextState
 
