@@ -14,11 +14,12 @@ from DDPG.logger.result import result_log
 from DDPG.core.helpers.read_xml_file import read_xml_file
 
 import gym
-env = gym.make('MountainCarContinuous-v0')
 config = read_xml_file("DDPGconfig.xml")
-env.configure(deterministic=True)
 
-#env = gym.make('Pendulum-v0')
+#env = gym.make('MountainCarContinuous-v0')
+#env.configure(deterministic=True)
+
+env = gym.make('Pendulum-v0')
 #env = gym.make('Acrobot-v0')
 
 monitor=False

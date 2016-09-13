@@ -85,17 +85,14 @@ class ArmModelEnv(gym.Env):
         self.np_random, seed = seeding.np_random(seed)
         return [seed]
 
-    def _configure(self, point_number=0, target_size=0.005):
+    def _configure(self, point_number=0, target_size=0.04):
         self.point_number = point_number
         self.target_size = target_size
 
     def _reset(self):
         q1, q2 = self.arm.mgi(self.posIni[self.point_number][0],self.posIni[self.point_number][1])
-        print ("xy reset",self.posIni[self.point_number][0],self.posIni[self.point_number][1])
         self.state = [0, 0, q1, q2]
-        print ("state reset",self.state)
         coordElbow, coordHand = self.arm.mgdFull([q1, q2])
-        print ("xy hand reset", coordHand)
 
         self.stateStore = np.zeros((self.delay,self.dimState))
         self.steps = 0
@@ -181,11 +178,11 @@ class ArmModelEnv(gym.Env):
         arm_drawing = rendering.make_polyline(xys)
         arm_drawing.set_linewidth(4)
         arm_drawing.set_color(.8, .3, .3)
-        arm_drawing.add_attr(rendering.Transform())
-        self.viewer.add_geom(arm_drawing)
+#       arm_drawing.add_attr(rendering.Transform())
+        self.viewer.add_onetime(arm_drawing)
 
-        xmin = self.rs.XTarget - self.target_size/2
-        xmax = self.rs.XTarget + self.target_size/2
+        xmin = self.rs.XTarget - self.target_size
+        xmax = self.rs.XTarget + self.target_size
         ytarg = self.rs.YTarget
         target = []
         target.append([self.scale_x(xmin),self.scale_y(ytarg)])
@@ -193,18 +190,34 @@ class ArmModelEnv(gym.Env):
         target_drawing = rendering.make_polyline(target)
         target_drawing.set_linewidth(4)
         target_drawing.set_color(.2, .3, .8)
-        target_drawing.add_attr(rendering.Transform())
+#        target_drawing.add_attr(rendering.Transform())
         self.viewer.add_geom(target_drawing)
 
-        start = []
-        for i in range(len(self.posIni)):
+        start1 = []
+        start2 = []
+        start3 = []
+        for i in range(3):
             x_start = self.posIni[i][0]
             y_start = self.posIni[i][1]
-            start.append([self.scale_x(x_start),self.scale_y(y_start)])
-        start_drawing = rendering.make_polyline(start)
-        start_drawing.set_color(.2, .8, .2)
-        start_drawing.add_attr(rendering.Transform())
-        self.viewer.add_geom(start_drawing)
+            start1.append([self.scale_x(x_start),self.scale_y(y_start)])
+        for i in range(5):
+            x_start = self.posIni[i+3][0]
+            y_start = self.posIni[i+3][1]
+            start2.append([self.scale_x(x_start),self.scale_y(y_start)])
+        for i in range(7):
+            x_start = self.posIni[i+8][0]
+            y_start = self.posIni[i+8][1]
+            start3.append([self.scale_x(x_start),self.scale_y(y_start)])
+        start1_drawing = rendering.make_polyline(start1)
+        start1_drawing.set_color(.2, .8, .2)
+        start2_drawing = rendering.make_polyline(start2)
+        start2_drawing.set_color(.2, .8, .2)
+        start3_drawing = rendering.make_polyline(start3)
+        start3_drawing.set_color(.2, .8, .2)
+#        start_drawing.add_attr(rendering.Transform())
+        self.viewer.add_geom(start1_drawing)
+        self.viewer.add_geom(start2_drawing)
+        self.viewer.add_geom(start3_drawing)
 
         return self.viewer.render(return_rgb_array = mode=='rgb_array')
 

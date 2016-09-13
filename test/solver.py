@@ -35,7 +35,8 @@ class Solver():
         delayed_state, reward, done, infos = self.env._step(action)
         estim_next_state = self.state_estimator.get_estim_state(delayed_state,action)
         self.learner.store_sample(self.estim_state, action, reward, estim_next_state)
-        self.env.render()
+        if config.render:
+            self.env.render()
         vectarget = self.env.get_target_vector()
         self.estim_state = estim_next_state
         self.nb_steps += 1
@@ -52,28 +53,23 @@ class Solver():
             self.learner.train_loop()
         return done
 
-    def perform_M_episodes(self, M):
+    def perform_M_episodes(self, M, target_size):
         '''
         perform M episodes
         '''
         max_nb_steps = 10000 #OSD:patch to study nb steps
         done = False
         for i in range(M):
+            self.env.configure(i%15, target_size)
             self.nb_steps = 0
             self.state = self.env.reset()
             done = self.perform_episode()
-            if i % self.config.print_interval == 0 and self.config.train:
-                self.stepsTime += self.totStepTime + self.totTrainTime
-                print ("Steps/minutes : " , 60.0*self.numSteps/self.stepsTime)               
-                self.totStepTime = 0
-                self.totTrainTime = 0
-            if done:
-                self.env.reset()
-                if (self.nb_steps<max_nb_steps):#OSD:patch to study nb steps
-                    max_nb_steps = self.nb_steps
-                    print('***** nb steps',self.nb_steps)
-                else: print('nb steps',self.nb_steps)        
+            if (self.nb_steps<max_nb_steps):
+                max_nb_steps = self.nb_steps
+                print('***** nb steps',self.nb_steps)
+            else:
+                print('nb steps',self.nb_steps)        
 
 s = Solver()
 for i in range(20):
-    s.perform_episode()
+    s.perform_M_episodes(15,0.04)
