@@ -87,9 +87,11 @@ class Cost():
     
     def compute_reward(self, arm, t, U, i, coordHand, target_size):
         done = False
+        finished = False
         cost = self.computeStateTransitionCost(U)
 
         if coordHand[1] >= self.rs.YTarget or i >= self.rs.max_steps:
+            finished = True
             #check if the Ordinate of the target is reached and give the reward if yes
             if coordHand[1] >= self.rs.YTarget:
                 #check if target is reached
@@ -97,10 +99,13 @@ class Cost():
                     cost += np.exp(-t/self.rs.gammaCF)*self.rs.rhoCF
                     cost += self.computePerpendCost(arm)
                     cost += self.computeHitVelocityCost(arm)
+                    print('goal reached')
                     done = True
                 else:
+                    print('Y hit',coordHand[0])
                     cost+= -50000+50000*(1-coordHand[0]*coordHand[0])
             else:
+                print('no hit',coordHand[1])
                 cost += -10000+10000*(coordHand[1]*coordHand[1])
             
-        return cost, done
+        return cost, done, finished

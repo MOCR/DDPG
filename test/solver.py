@@ -68,7 +68,7 @@ class Solver():
 
     def step(self):
         action = np.array(self.learner.get_noisy_action_from_state(self.estim_state))
-        delayed_state, reward, done, infos = self.env._step(action)
+        delayed_state, reward, done, finished, infos = self.env._step(action)
         estim_next_state = self.state_estimator.get_estim_state(delayed_state,action)
         self.learner.store_sample(self.estim_state, action, reward, estim_next_state)
         if config.render:
@@ -79,17 +79,17 @@ class Solver():
         self.estim_state = estim_next_state
         self.nb_steps += 1
         self.store_step(infos)
-        return reward, done
+        return reward, done, finished
     
     def perform_episode(self):
         '''
         perform one episode
         numSteps is the number of steps over all episodes
         '''
-        done = False
+        finished = False
         total_cost = 0
-        while self.nb_steps < self.max_steps and not done:
-            reward, done = self.step()
+        while not finished:
+            reward, done, finished = self.step()
             total_cost += reward
             self.learner.train_loop()
         self.save()

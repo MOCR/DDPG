@@ -11,8 +11,6 @@ from gym.utils import seeding
 from gym.envs.classic_control import rendering
 import numpy as np
 
-verbose = False
-
 from gym.envs.motor_control.ArmModel.ArmType import ArmType
 from gym.envs.motor_control.Cost.Cost import Cost
 from gym.envs.motor_control.ArmModel.MuscularActivation import getNoisyCommand, muscleFilter
@@ -129,7 +127,7 @@ class ArmModelEnv(gym.Env):
 
         output_state = self.store_state(realNextState)
 
-        cost, done = self.eval.compute_reward(self.arm, self.t, Unoisy, self.steps, coordHand, self.target_size)
+        cost, done, finished = self.eval.compute_reward(self.arm, self.t, Unoisy, self.steps, coordHand, self.target_size)
         self.steps += 1
         self.t += self.rs.dt
 
@@ -141,17 +139,13 @@ class ArmModelEnv(gym.Env):
         step_dic['elbow'] = [coordElbow[0], coordElbow[1]]
         step_dic['hand'] = [coordHand[0], coordHand[1]]
 
-        if done:
-            if  verbose:
-                print ('goal reached!')
-
-        return output_state, cost, done, step_dic
+        return output_state, cost, done, finished, step_dic
 
     def scale_x(self,x):
         return self.screen_width/2 + x*self.scale
 
     def scale_y(self,y):
-        return 10 + y*self.scale
+        return self.screen_height/4 + y*self.scale
 
     def _render(self, mode='human', close=False):
         if close:
@@ -180,15 +174,21 @@ class ArmModelEnv(gym.Env):
 
         xmin = self.rs.XTarget - self.target_size/2
         xmax = self.rs.XTarget + self.target_size/2
-        ytarg = self.rs.YTarget
+        ytarg = self.rs.YTarget 
         target = []
+        top_line = []
         target.append([self.scale_x(xmin),self.scale_y(ytarg)])
         target.append([self.scale_x(xmax),self.scale_y(ytarg)])
+        top_line.append([0,self.scale_y(ytarg)])
+        top_line.append([self.screen_width,self.scale_y(ytarg)])
         target_drawing = rendering.make_polyline(target)
+        top_line_drawing = rendering.make_polyline(top_line)
         target_drawing.set_linewidth(4)
         target_drawing.set_color(.2, .3, .8)
+        top_line_drawing.set_color(.9, .1, .1)
 #        target_drawing.add_attr(rendering.Transform())
         self.viewer.add_geom(target_drawing)
+        self.viewer.add_geom(top_line_drawing)
 
         start1 = []
         start2 = []
