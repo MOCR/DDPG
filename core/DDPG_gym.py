@@ -133,12 +133,17 @@ class DDPG_gym(object):
         """
         act = self.action([[state]])[0]
         return act
+
+    def get_noisy_action_from_state(self,state):
+        action = self.get_action_from_state(self.state)
+        return self.noise_generator.add_noise(action)
             
     def step(self):
         '''
         perform one step
         nb_steps is the number of steps over this episode
         '''
+        self.nb_steps += 1
         action = self.get_noisy_action_from_state(self.state)
         next_state, reward, done, infos = self.env.step(action)
         self.store_sample(self.state, action, reward, next_state)
@@ -153,11 +158,6 @@ class DDPG_gym(object):
     def store_sample(self, state, action, reward, next_state):
         if self.config.train:
             self.replay_buffer.store_one_sample(sample(state, action, reward, next_state))
-
-    def get_noisy_action_from_state(self,state):
-        action = self.get_action_from_state(self.state)
-        self.nb_steps += 1
-        return self.noise_generator.add_noise(action)
     
     def perform_episode(self):
         '''
@@ -193,16 +193,13 @@ class DDPG_gym(object):
             reward, done = self.perform_episode()
             if i % self.config.print_interval == 0 and self.config.train:
                 self.stepsTime += self.totStepTime + self.totTrainTime
-                print('nb steps',self.nb_steps, " perf : ", reward)
-                print("Steps/minutes : " , 60.0*self.numSteps/self.stepsTime)               
+#                print("Steps/minutes : " , 60.0*self.numSteps/self.stepsTime)               
                 self.totStepTime = 0
                 self.totTrainTime = 0
-            if done:
-                self.env.reset()
-                if (self.nb_steps<max_nb_steps):#OSD:patch to study nb steps
-                    max_nb_steps = self.nb_steps
-                    print('***** nb steps',self.nb_steps)
-                else: print('nb steps',self.nb_steps)
+            if (self.nb_steps<max_nb_steps):#OSD:patch to study nb steps
+                max_nb_steps = self.nb_steps
+                print('episode',i,'***** nb steps',self.nb_steps, " perf : ", reward)
+            else: print('episode',i,'nb steps',self.nb_steps, " perf : ", reward)
 
     def train_loop(self):
         if self.config.train:

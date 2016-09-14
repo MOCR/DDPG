@@ -22,7 +22,7 @@
     <print_interval>1</print_interval>
     <max_steps>999</max_steps>
     <train>true</train>
-    <render>true</render>
+    <render>false</render>
     <draw_policy>false</draw_policy>
     <tensorboard>false</tensorboard>
   </miscParams>

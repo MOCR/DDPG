@@ -16,10 +16,10 @@ from DDPG.core.helpers.read_xml_file import read_xml_file
 import gym
 config = read_xml_file("DDPGconfig.xml")
 
-#env = gym.make('MountainCarContinuous-v0')
-#env.configure(deterministic=True)
+env = gym.make('MountainCarContinuous-v0')
+env.configure(deterministic=False)
 
-env = gym.make('Pendulum-v0')
+#env = gym.make('Pendulum-v0')
 #env = gym.make('Acrobot-v0')
 
 monitor=False
@@ -45,7 +45,7 @@ def doInit():
         draw_policy(agent,env)
 
 c=Chrono()
-doEp(10)
+doEp(1000)
 if (monitor):
     env.monitor.close()
     gym.upload('/home/sigaud/Bureau/sigaud/DDPG_gym/DDPG/log', api_key='sk_oOTW8cLjQIeQeQdalZSApA')

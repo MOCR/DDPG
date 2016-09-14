@@ -12,6 +12,7 @@ from Utils.ReadXmlArmFile import ReadXmlArmFile
 from DDPG.core.DDPG_gym import DDPG_gym
 from Experiments.StateEstimator import State_Estimator
 from DDPG.core.helpers.read_xml_file import read_xml_file
+from DDPG.test.helpers.logger import Logger
 
 pathDataFolder = "./ArmParams/"
 config = read_xml_file("DDPGconfig.xml")
@@ -45,6 +46,7 @@ class Solver():
         self.max_steps = self.rs.max_steps
         self.nb_steps = 0
         self.data_store = []
+        self.logger = Logger()
 
     def store_step(self,dico):
         vec_save = []
@@ -67,7 +69,8 @@ class Solver():
         np.savetxt(filename,self.data_store)
 
     def step(self):
-        action = np.array(self.learner.get_noisy_action_from_state(self.estim_state))
+#        action = np.array(self.learner.get_noisy_action_from_state(self.estim_state))
+        action = np.array(self.learner.get_action_from_state(self.estim_state))
         delayed_state, reward, done, finished, infos = self.env._step(action)
         estim_next_state = self.state_estimator.get_estim_state(delayed_state,action)
         self.learner.store_sample(self.estim_state, action, reward, estim_next_state)
@@ -78,7 +81,7 @@ class Solver():
         infos['estimNextState'] = estim_next_state
         self.estim_state = estim_next_state
         self.nb_steps += 1
-        self.store_step(infos)
+#        self.store_step(infos)
         return reward, done, finished
     
     def perform_episode(self):
@@ -92,27 +95,31 @@ class Solver():
             reward, done, finished = self.step()
             total_cost += reward
             self.learner.train_loop()
-        self.save()
+#        self.save()
         return total_cost, done
 
-    def perform_M_episodes(self, M, target_size):
+    def perform_M_episodes(self, M, starting_point, target_size):
         '''
         perform M episodes
         '''
-        max_nb_steps = 10000 #OSD:patch to study nb steps
+        best_cost = -30000
         done = False
+        self.env.configure(starting_point, target_size)
         for i in range(M):
-            self.env.configure(i%15, target_size)
+#            self.env.configure(i%15, target_size)
             self.nb_steps = 0
             self.state = self.env.reset()
             total_cost, done = self.perform_episode()
-            print('total cost',total_cost)
-            if (self.nb_steps<max_nb_steps):
-                max_nb_steps = self.nb_steps
-                print('***** nb steps',self.nb_steps)
+            self.logger.store(total_cost)
+            if (total_cost>best_cost):
+                best_cost=total_cost
+                print('episode',i,'***** best cost',total_cost)
             else:
-                print('nb steps',self.nb_steps)        
+                print('episode',i,'total cost',total_cost)
+        return best_cost
 
 s = Solver()
-for i in range(20):
-    s.perform_M_episodes(15,0.04)
+for i in range(15):
+    total = s.perform_M_episodes(1000,i,0.04)
+    print('^^^^^^^^^^ final cost',total)
+    s.logger.plot_progress()

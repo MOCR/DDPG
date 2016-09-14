@@ -102,10 +102,8 @@ class Cost():
                     print('goal reached')
                     done = True
                 else:
-                    print('Y hit',coordHand[0])
                     cost+= -50000+50000*(1-coordHand[0]*coordHand[0])
             else:
-                print('no hit',coordHand[1])
                 cost += -10000+10000*(coordHand[1]*coordHand[1])
             
         return cost, done, finished
