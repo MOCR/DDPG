@@ -8,13 +8,14 @@ Module: Cost
 Description: Class to compute partial costs
 '''
 import numpy as np
+from gym.envs.motor_control.ArmModel.Arm import get_dotQ_and_Q_From
 
 class Cost():
     def __init__(self, rs):
         self.rs=rs
 
 
-    def computeManipulabilityCost(self, arm):
+    def computeManipulabilityCost(self, arm, state):
         '''
         Computes the manipulability cost on one step of the trajectory
         
@@ -22,7 +23,7 @@ class Cost():
                 
         Output:        -cost: cost at time t+1, float
         '''
-        dotq, q = arm.getDotQAndQFromStateVector(self.arm.get_state())
+        q, qdot = get_dotQ_and_Q_From(state)
         manip = arm.directionalManipulability(q,self.cartTarget)
         return 1-manip
 
@@ -61,31 +62,31 @@ class Cost():
         #return np.exp(-t/self.rs.gammaCF)*(-self.rs.upsCF*mvtCost)
         return -self.rs.upsCF*mvtCost
     
-    def computePerpendCost(self, arm): 
+    def computePerpendCost(self, arm, state): 
         '''
         compute the Perpendicular cost for one trajectory
         
         Ouput :        -cost, the perpendicular cost
         ''' 
-        dotq, q = arm.getDotQAndQFromStateVector(arm.get_state())
+        q, qdot = get_dotQ_and_Q_From(state)
         J = arm.jacobian(q)
-        xi = np.dot(J,dotq)
+        xi = np.dot(J,qdot)
         norm=np.linalg.norm(xi)
         if(norm!=0):
             xi = xi/norm
         return 500-1000*xi[0]*xi[0]
     
-    def computeHitVelocityCost(self, arm): 
+    def computeHitVelocityCost(self, arm, state): 
         '''
         compute the hit velocity cost for one trajectory
         
         Ouput :        -cost, the hit velocity cost
         ''' 
-        speed = arm.cartesianSpeed(arm.get_state())
+        speed = arm.cartesianSpeed(state)
         norm = np.linalg.norm(speed)
         return -1000*norm
     
-    def compute_reward(self, arm, t, U, i, coordHand, target_size):
+    def compute_reward(self, arm, t, U, i, coordHand, target_size, state):
         done = False
         finished = False
         cost = self.computeStateTransitionCost(U)
@@ -97,13 +98,15 @@ class Cost():
                 #check if target is reached
                 if coordHand[0] >= -target_size/2 and coordHand[0] <= target_size/2:
                     cost += np.exp(-t/self.rs.gammaCF)*self.rs.rhoCF
-                    cost += self.computePerpendCost(arm)
-                    cost += self.computeHitVelocityCost(arm)
+                    cost += self.computePerpendCost(arm,state)
+#                    cost += self.computeHitVelocityCost(arm,state)
                     print('goal reached')
                     done = True
                 else:
                     cost+= -50000+50000*(1-coordHand[0]*coordHand[0])
             else:
                 cost += -10000+10000*(coordHand[1]*coordHand[1])
+                q, qdot = get_dotQ_and_Q_From(state)
+                print('xy',coordHand[0],coordHand[1],'-0.6<q1<2.6',q[0],'-0.2<q2<3.0',q[1])
             
         return cost, done, finished

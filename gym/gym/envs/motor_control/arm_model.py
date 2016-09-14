@@ -11,9 +11,10 @@ from gym.utils import seeding
 from gym.envs.classic_control import rendering
 import numpy as np
 
+from gym.envs.motor_control.ArmModel.Arm import get_dotQ_and_Q_From
 from gym.envs.motor_control.ArmModel.ArmType import ArmType
-from gym.envs.motor_control.Cost.Cost import Cost
 from gym.envs.motor_control.ArmModel.MuscularActivation import getNoisyCommand, muscleFilter
+from gym.envs.motor_control.Cost.Cost import Cost
 
 from Utils.ReadXmlArmFile import ReadXmlArmFile
 
@@ -89,7 +90,7 @@ class ArmModelEnv(gym.Env):
 
     def _reset(self):
         q1, q2 = self.arm.mgi(self.posIni[self.point_number][0],self.posIni[self.point_number][1])
-        self.state = [0, 0, q1, q2]
+        self.state = [q1, q2, 0, 0]
         coordElbow, coordHand = self.arm.mgdFull([q1, q2])
 
         self.stateStore = np.zeros((self.delay,self.dimState))
@@ -107,27 +108,25 @@ class ArmModelEnv(gym.Env):
         self.stateStore[0]=state
         return self.stateStore[self.delay-1]
 
+    def get_current_state(self):
+        return self.stateStore[0]
+
     def _step(self, action):
 
         Unoisy = getNoisyCommand(action,self.arm.musclesP.knoiseU)
         Unoisy = muscleFilter(Unoisy)
-#        Unoisy = np.array([0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
-        #computation of the arm state
-        dotq, q = self.arm.getDotQAndQFromStateVector(self.state)
-
+        #        Unoisy = np.array([0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
 
         realNextState = self.arm.computeNextState(Unoisy, self.state)
         self.state = realNextState
 
-        dotq, q = self.arm.getDotQAndQFromStateVector(self.state)
-
+        q, qdot = get_dotQ_and_Q_From(self.state)
         coordElbow, coordHand = self.arm.mgdFull(q)
         self.xy_elbow = coordElbow
         self.xy_hand = coordHand
 
         output_state = self.store_state(realNextState)
-
-        cost, done, finished = self.eval.compute_reward(self.arm, self.t, Unoisy, self.steps, coordHand, self.target_size)
+        cost, done, finished = self.eval.compute_reward(self.arm, self.t, Unoisy, self.steps, coordHand, self.target_size, self.get_current_state())
         self.steps += 1
         self.t += self.rs.dt
 
@@ -220,6 +219,10 @@ class ArmModelEnv(gym.Env):
 
     def get_arm(self):
         return self.arm
+
+
+    def get_viewer(self):
+        return self.viewer
 
     def get_target_vector(self):
         qtarget1, qtarget2 = self.arm.mgi(self.rs.XTarget, self.rs.YTarget)

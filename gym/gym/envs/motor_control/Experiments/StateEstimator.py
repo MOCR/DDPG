@@ -9,6 +9,7 @@ Description: Used to estimate the current state, reproducing the human control m
 '''
 import numpy as np
 import random as rd
+from gym.envs.motor_control.ArmModel.Arm import get_dotQ_and_Q_From
 
 def isNull(vec):
     for el in vec:

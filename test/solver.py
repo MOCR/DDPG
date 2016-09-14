@@ -14,6 +14,9 @@ from Experiments.StateEstimator import State_Estimator
 from DDPG.core.helpers.read_xml_file import read_xml_file
 from DDPG.test.helpers.logger import Logger
 
+from gym.envs.classic_control import rendering
+from gym.envs.motor_control.ArmModel.Arm import get_dotQ_and_Q_From
+
 pathDataFolder = "./ArmParams/"
 config = read_xml_file("DDPGconfig.xml")
 
@@ -42,11 +45,14 @@ class Solver():
         self.env = gym.make('ArmModel-v0')
         self.learner = DDPG_gym(self.env,config)
         self.state_estimator = State_Estimator(self.rs.inputDim, self.rs.outputDim, self.rs.delayUKF, self.env.get_arm())
-        self.estim_state = self.state_estimator.init_store(self.env.reset()) #TODO: improve: reset is done twice
         self.max_steps = self.rs.max_steps
-        self.nb_steps = 0
         self.data_store = []
         self.logger = Logger()
+        self.reset()
+
+    def reset(self):
+        self.nb_steps = 0
+        self.estim_state = self.state_estimator.init_store(self.env.reset()) #TODO: improve: reset is done twice, once in the init of env and here
 
     def store_step(self,dico):
         vec_save = []
@@ -80,9 +86,34 @@ class Solver():
         infos['vectarget'] = self.env.get_target_vector()
         infos['estimNextState'] = estim_next_state
         self.estim_state = estim_next_state
+        q, qdot = get_dotQ_and_Q_From(self.estim_state)
         self.nb_steps += 1
+        if not self.env.arm.is_inside_bounds(q):
+            print ('estim q',q)
+        if config.render:
+            self.add_estim_arm_view()
 #        self.store_step(infos)
         return reward, done, finished
+
+    def add_estim_arm_view(self, mode='human'):
+        viewer = self.env.get_viewer()
+        q, qdot = get_dotQ_and_Q_From(self.estim_state)
+        xy_elbow, xy_hand = self.env.arm.mgdFull(q)
+        xys = []
+        xys.append([self.env.scale_x(0),self.env.scale_y(0)])
+        x1 = self.env.scale_x(xy_elbow[0])
+        y1 = self.env.scale_y(xy_elbow[1])
+        xys.append([x1,y1])
+        x2 = self.env.scale_x(xy_hand[0])
+        y2 = self.env.scale_y(xy_hand[1])
+        xys.append([x2,y2])
+        
+        arm_drawing = rendering.make_polyline(xys)
+        arm_drawing.set_linewidth(4)
+        arm_drawing.set_color(.1, .1, .8)
+#       arm_drawing.add_attr(rendering.Transform())
+        viewer.add_onetime(arm_drawing)
+        viewer.render(return_rgb_array = mode=='rgb_array')
     
     def perform_episode(self):
         '''
@@ -107,8 +138,7 @@ class Solver():
         self.env.configure(starting_point, target_size)
         for i in range(M):
 #            self.env.configure(i%15, target_size)
-            self.nb_steps = 0
-            self.state = self.env.reset()
+            self.reset()
             total_cost, done = self.perform_episode()
             self.logger.store(total_cost)
             if (total_cost>best_cost):

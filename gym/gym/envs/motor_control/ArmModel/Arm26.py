@@ -13,9 +13,9 @@ Description:
 import numpy as np
 import math
 
-from ArmModel.Arm import *
-from ArmModel.ArmParamsXML import ArmParameters
-from ArmModel.MusclesParamsXML import MusclesParameters
+from gym.envs.motor_control.ArmModel.Arm import *
+from gym.envs.motor_control.ArmModel.ArmParamsXML import ArmParameters
+from gym.envs.motor_control.ArmModel.MusclesParamsXML import MusclesParameters
 
 #-----------------------------------------------------------------------------
 
@@ -34,9 +34,9 @@ class Arm26(Arm):
         Output:    -state: (4,1) numpy array, the resulting state
         '''
         #print ("state:", state)
-        dotq, q = self.getDotQAndQFromStateVector(state)
+        q, qdot = get_dotQ_and_Q_From(state)
         #print ("U :",U)
-        #print ("dotq:",dotq)
+        #print ("qdot:",qdot)
         M = np.array([[self.k[0]+2*self.k[1]*math.cos(q[1]),
                        self.k[2]+self.k[1]*math.cos(q[1])],
                       [self.k[2]+self.k[1]*math.cos(q[1]),
@@ -44,7 +44,7 @@ class Arm26(Arm):
         #print ("M:",M)
         #Minv = np.linalg.inv(M)
         #print ("Minv:",Minv)
-        C = np.array([-dotq[1]*(2*dotq[0]+dotq[1])*self.k[1]*math.sin(q[1]),(dotq[0]**2)*self.k[1]*math.sin(q[1])])
+        C = np.array([-qdot[1]*(2*qdot[0]+qdot[1])*self.k[1]*math.sin(q[1]),(qdot[0]**2)*self.k[1]*math.sin(q[1])])
         #print ("C:",C)
         #the commented version uses a non null stiffness for the muscles
         #beware of dot product Kraid times q: q may not be the correct vector/matrix
@@ -56,22 +56,22 @@ class Arm26(Arm):
         #print ("Gamma:",Gamma)
 
         #Gamma = np.dot(armP.At, np.dot(musclesP.fmax,U))
-        #computes the acceleration ddotq and integrates
+        #computes the acceleration qddot and integrates
     
-        b = np.dot(self.armP.B, dotq)
+        b = np.dot(self.armP.B, qdot)
         #print ("b:",b)
 
-        #ddotq = np.dot(Minv,Gamma - C - b)
-        #print ("ddotq",ddotq)
+        #qddot = np.dot(Minv,Gamma - C - b)
+        #print ("qddot",qddot)
 
         #To avoid inverting M:
-        ddotq = np.linalg.solve(M, Gamma - C - b)
+        qddot = np.linalg.solve(M, Gamma - C - b)
     
-        dotq += ddotq*self.dt
-        q += dotq*self.dt
+        qdot += qddot*self.dt
+        q += qdot*self.dt
         #save the real state to compute the state at the next step with the real previous state
         q = self.joint_stop(q)
-        nextState = np.array([dotq[0], dotq[1], q[0], q[1]])
+        nextState = np.array([q[0], q[1], qdot[0], qdot[1]])
         return nextState
 
     
@@ -115,8 +115,8 @@ class Arm26(Arm):
         '''
         Computes a state estimation error as the cartesian distance between the estimated state and the current state
         '''
-        _,q = self.getDotQAndQFromStateVector(state)
-        _,qEstim = self.getDotQAndQFromStateVector(estimState)
+        q, _ = get_dotQ_and_Q_From(state)
+        qEstim, _ = get_dotQ_and_Q_From(estimState)
         hand = self.mgdEndEffector(q)
         handEstim = self.mgdEndEffector(qEstim)
         dx = hand[0] - handEstim[0]
@@ -135,7 +135,7 @@ class Arm26(Arm):
         return math.sqrt(dx**2 + dy**2)
 
     def cartesianSpeed(self,state):
-        qdot,q = self.getDotQAndQFromStateVector(state)
+        q, qdot = get_dotQ_and_Q_From(state)
         J = self.jacobian(q)
         return np.linalg.norm(np.dot(J,qdot))
 

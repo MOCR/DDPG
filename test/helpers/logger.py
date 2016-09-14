@@ -30,7 +30,7 @@ class Logger():
             y.append(self.data_store[j])
         plt.plot(x, y, c = 'b')
  
-        plt.set_title("Cost ")
+        plt.title("Cost ")
 
         plt.savefig("costProgress.svg")
         plt.show(block = True)

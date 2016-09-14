@@ -11,6 +11,21 @@ Description:
 '''
 import numpy as np
 import math
+    
+def get_dotQ_and_Q_From(state):
+        '''
+        Returns dotq and q from the state
+        
+        Input:    -state: numpy array, state vector
+        
+        Outputs:    -dotq: numpy array
+        -q: numpy array
+        '''
+        state=np.array(state)
+        middle=state.shape[0]/2
+        q = state[:middle]
+        dotq = state[middle:]
+        return q, dotq
 
 class Arm(object):
     def __init__(self,armParameter, musclesparameter, dotq0):
@@ -51,6 +66,20 @@ class Arm(object):
             elif q[i] > self.armP.upperBounds[i]:
                 q[i] = self.armP.upperBounds[i]
         return q
+        
+    def is_inside_bounds(self,q):
+        '''
+        Articular stop for the human arm
+        The stops are included in the arm parameters file
+    
+        Inputs:    -q: (2 or 3,1) numpy array
+    
+        Outputs:    -q: (2 or 3,1) numpy array
+        '''
+        for i in range(q.shape[0]):
+            if q[i] < self.armP.lowerBounds[i]: return False
+            elif q[i] > self.armP.upperBounds[i]: return False
+        return True
     
     def manipulability(self, q, target):
         J = self.jacobian(q)
@@ -78,18 +107,3 @@ class Arm(object):
        
         manip = 1/math.sqrt(root)
         return manip
-    
-    def getDotQAndQFromStateVector(self, state):
-        '''
-        Returns dotq and q from the state vector state
-        
-        Input:    -state: numpy array, state vector
-        
-        Outputs:    -dotq: numpy array
-        -q: numpy array
-        '''
-        state=np.array(state)
-        middle=state.shape[0]/2
-        dotq = state[:middle]
-        q = state[middle:]
-        return dotq, q
