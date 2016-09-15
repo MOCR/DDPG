@@ -10,7 +10,6 @@ class noise_generator(object):
     A noise generator from adding noise to actions
     """
     def __init__(self, logger = None):
-        self.noiseRange = 1.0
         self.noise = 0
         self.alpha = 0.6
         self.beta = 0.4
@@ -28,7 +27,7 @@ class noise_generator(object):
         self.noise = self.get_sample()
 
     def get_sample(self):
-        return self.noise-self.alpha*self.noise + self.beta*random.gauss(0,1)*self.noiseRange
+        return self.noise-self.alpha*self.noise + self.beta*random.gauss(0,1)
 
     def add_noise(self,action_vector):
         noisy_action = []
