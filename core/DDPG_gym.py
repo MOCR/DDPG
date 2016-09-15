@@ -32,7 +32,6 @@ class DDPG_gym(object):
     def __init__(self, env, config):
         self.env = env
         self.noise_generator = noise_generator()
-        self.state = self.env.reset()
 
         self.config = config
 
@@ -135,7 +134,7 @@ class DDPG_gym(object):
         return act
 
     def get_noisy_action_from_state(self,state):
-        action = self.get_action_from_state(self.state)
+        action = self.get_action_from_state(state)
         return self.noise_generator.add_noise(action)
             
     def step(self):

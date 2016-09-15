@@ -15,10 +15,10 @@ from DDPG.core.helpers.read_xml_file import read_xml_file
 from DDPG.test.helpers.logger import Logger
 
 from gym.envs.classic_control import rendering
-from gym.envs.motor_control.ArmModel.Arm import get_dotQ_and_Q_From
+from gym.envs.motor_control.ArmModel.Arm import get_q_and_qdot_from
 
 pathDataFolder = "./ArmParams/"
-config = read_xml_file("DDPGconfig.xml")
+config = read_xml_file("DDPG_arm_config.xml")
 
 #TODO: perform episode from each starting point (env.configure(i,target_size) env.reset())
 
@@ -48,11 +48,10 @@ class Solver():
         self.max_steps = self.rs.max_steps
         self.data_store = []
         self.logger = Logger()
-        self.reset()
 
     def reset(self):
         self.nb_steps = 0
-        self.estim_state = self.state_estimator.init_store(self.env.reset()) #TODO: improve: reset is done twice, once in the init of env and here
+        self.estim_state = self.state_estimator.init_store(self.env.reset())
 
     def store_step(self,dico):
         vec_save = []
@@ -86,7 +85,7 @@ class Solver():
         infos['vectarget'] = self.env.get_target_vector()
         infos['estimNextState'] = estim_next_state
         self.estim_state = estim_next_state
-        q, qdot = get_dotQ_and_Q_From(self.estim_state)
+        q, qdot = get_q_and_qdot_from(self.estim_state)
         self.nb_steps += 1
         if not self.env.arm.is_inside_bounds(q):
             print ('estim q',q)
@@ -97,7 +96,7 @@ class Solver():
 
     def add_estim_arm_view(self, mode='human'):
         viewer = self.env.get_viewer()
-        q, qdot = get_dotQ_and_Q_From(self.estim_state)
+        q, qdot = get_q_and_qdot_from(self.estim_state)
         xy_elbow, xy_hand = self.env.arm.mgdFull(q)
         xys = []
         xys.append([self.env.scale_x(0),self.env.scale_y(0)])
@@ -150,6 +149,6 @@ class Solver():
 
 s = Solver()
 for i in range(15):
-    total = s.perform_M_episodes(1000,i,0.04)
+    total = s.perform_M_episodes(2000,i,0.04)
     print('^^^^^^^^^^ final cost',total)
     s.logger.plot_progress()

@@ -8,7 +8,7 @@ Module: Cost
 Description: Class to compute partial costs
 '''
 import numpy as np
-from gym.envs.motor_control.ArmModel.Arm import get_dotQ_and_Q_From
+from gym.envs.motor_control.ArmModel.Arm import get_q_and_qdot_from
 
 class Cost():
     def __init__(self, rs):
@@ -23,7 +23,7 @@ class Cost():
                 
         Output:        -cost: cost at time t+1, float
         '''
-        q, qdot = get_dotQ_and_Q_From(state)
+        q, qdot = get_q_and_qdot_from(state)
         manip = arm.directionalManipulability(q,self.cartTarget)
         return 1-manip
 
@@ -68,7 +68,7 @@ class Cost():
         
         Ouput :        -cost, the perpendicular cost
         ''' 
-        q, qdot = get_dotQ_and_Q_From(state)
+        q, qdot = get_q_and_qdot_from(state)
         J = arm.jacobian(q)
         xi = np.dot(J,qdot)
         norm=np.linalg.norm(xi)
@@ -106,7 +106,7 @@ class Cost():
                     cost+= -50000+50000*(1-coordHand[0]*coordHand[0])
             else:
                 cost += -10000+10000*(coordHand[1]*coordHand[1])
-                q, qdot = get_dotQ_and_Q_From(state)
-                print('xy',coordHand[0],coordHand[1],'-0.6<q1<2.6',q[0],'-0.2<q2<3.0',q[1])
+                q, qdot = get_q_and_qdot_from(state)
+#                print('xy',coordHand[0],coordHand[1],'-0.6<q1<2.6',q[0],'-0.2<q2<3.0',q[1])
             
         return cost, done, finished

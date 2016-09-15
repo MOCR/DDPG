@@ -34,7 +34,7 @@ class Arm26(Arm):
         Output:    -state: (4,1) numpy array, the resulting state
         '''
         #print ("state:", state)
-        q, qdot = get_dotQ_and_Q_From(state)
+        q, qdot = get_q_and_qdot_from(state)
         #print ("U :",U)
         #print ("qdot:",qdot)
         M = np.array([[self.k[0]+2*self.k[1]*math.cos(q[1]),
@@ -115,8 +115,8 @@ class Arm26(Arm):
         '''
         Computes a state estimation error as the cartesian distance between the estimated state and the current state
         '''
-        q, _ = get_dotQ_and_Q_From(state)
-        qEstim, _ = get_dotQ_and_Q_From(estimState)
+        q, _ = get_q_and_qdot_from(state)
+        qEstim, _ = get_q_and_qdot_from(estimState)
         hand = self.mgdEndEffector(q)
         handEstim = self.mgdEndEffector(qEstim)
         dx = hand[0] - handEstim[0]
@@ -135,7 +135,7 @@ class Arm26(Arm):
         return math.sqrt(dx**2 + dy**2)
 
     def cartesianSpeed(self,state):
-        q, qdot = get_dotQ_and_Q_From(state)
+        q, qdot = get_q_and_qdot_from(state)
         J = self.jacobian(q)
         return np.linalg.norm(np.dot(J,qdot))
 

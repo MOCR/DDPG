@@ -8,11 +8,12 @@ Module: Arm
 Description:    
 -Models an arm with two joints and six muscles
 -Computes its dynamics
+- Warning, the class does not manage an internal state of the arm.
 '''
 import numpy as np
 import math
     
-def get_dotQ_and_Q_From(state):
+def get_q_and_qdot_from(state):
         '''
         Returns dotq and q from the state
         
@@ -32,12 +33,6 @@ class Arm(object):
         self.__dotq0 = dotq0
         self.armP = armParameter
         self.musclesP = musclesparameter
-    
-    def set_state(self, state):
-        self.state = state
-      
-    def get_state(self):
-        return self.state
       
     def setDT(self, dt):
         self.dt = dt

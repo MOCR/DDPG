@@ -11,7 +11,7 @@ from gym.utils import seeding
 from gym.envs.classic_control import rendering
 import numpy as np
 
-from gym.envs.motor_control.ArmModel.Arm import get_dotQ_and_Q_From
+from gym.envs.motor_control.ArmModel.Arm import get_q_and_qdot_from
 from gym.envs.motor_control.ArmModel.ArmType import ArmType
 from gym.envs.motor_control.ArmModel.MuscularActivation import getNoisyCommand, muscleFilter
 from gym.envs.motor_control.Cost.Cost import Cost
@@ -70,8 +70,8 @@ class ArmModelEnv(gym.Env):
         self.observation_space = spaces.Box(self.low_state, self.high_state)
 
         self._seed()
-        self._configure(0,0.005)
-        self.arm.set_state(self.reset())
+#        self._configure(0,0.005)
+#        self.arm.set_state(self.reset())
 
     def test_mgd(self):
         q1, q2 = self.arm.mgi(0.45,0.2)
@@ -120,7 +120,7 @@ class ArmModelEnv(gym.Env):
         realNextState = self.arm.computeNextState(Unoisy, self.state)
         self.state = realNextState
 
-        q, qdot = get_dotQ_and_Q_From(self.state)
+        q, qdot = get_q_and_qdot_from(self.state)
         coordElbow, coordHand = self.arm.mgdFull(q)
         self.xy_elbow = coordElbow
         self.xy_hand = coordHand

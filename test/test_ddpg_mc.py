@@ -14,7 +14,7 @@ from DDPG.logger.result import result_log
 from DDPG.core.helpers.read_xml_file import read_xml_file
 
 import gym
-config = read_xml_file("DDPGconfig.xml")
+config = read_xml_file("DDPG_mc_config.xml")
 
 env = gym.make('MountainCarContinuous-v0')
 env.configure(deterministic=False)

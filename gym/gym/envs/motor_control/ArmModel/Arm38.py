@@ -17,7 +17,6 @@ from ArmModel.ArmParamsXML import ArmParameters
 from ArmModel.MusclesParamsXML import MusclesParameters
 from ArmModel.Arm import Arm
 
-
 #-----------------------------------------------------------------------------
 
 class Arm38(Arm):
@@ -45,9 +44,9 @@ class Arm38(Arm):
         Output:    -state: (4,1) numpy array, the resulting state
         '''
         #print ("state:", state)
-        dotq, q = self.getDotQAndQFromStateVector(state)
+        q, qdot = get_q_and_qdot_from(state)
         #print ("U :",U)
-        #print ("dotq:",dotq)
+        #print ("qdot:",qdot)
         M = np.array([[self.k4+self.k8+self.k11+self.k3+2*self.k2*math.cos(q[1])+self.k1+self.k7+2*self.k5*math.cos(q[1])+2*self.k9*math.cos(q[1]+q[2])+2*self.k10*math.cos(q[2]),
                        self.k8+self.k11+self.k6*math.cos(q[1])+self.k5*math.cos(q[1])+self.k9*math.cos(q[1]+q[2])+2*self.k10*math.cos(q[2]),
                        self.k11+self.k9*math.cos(q[1]+q[2])+self.k10*math.cos(q[2])],
@@ -61,13 +60,13 @@ class Arm38(Arm):
                        self.k11]])
         
 
-        C = np.array([-self.k2*dotq[0]*dotq[1]*math.sin(q[1])-self.k5*math.sin(q[1])-self.k9*math.sin(q[1]+q[2])*(2*dotq[0]+dotq[1]+dotq[2])
-                      -self.k10*math.sin(q[2])*(2*dotq[0]*dotq[2]+2*dotq[1]*dotq[2]+dotq[2]**2)-self.k6*math.sin(q[2])*(dotq[3]**2),
+        C = np.array([-self.k2*qdot[0]*qdot[1]*math.sin(q[1])-self.k5*math.sin(q[1])-self.k9*math.sin(q[1]+q[2])*(2*qdot[0]+qdot[1]+qdot[2])
+                      -self.k10*math.sin(q[2])*(2*qdot[0]*qdot[2]+2*qdot[1]*qdot[2]+qdot[2]**2)-self.k6*math.sin(q[2])*(qdot[3]**2),
                                            
-                      -(dotq[0]**2)*math.sin(q[1])*(self.k5+self.k2)+self.k9*(dotq[0]**2)*math.sin(q[1]+q[2])
-                      +self.k10*dotq[2]*math.sin(q[2])*(-2*dotq[0]-2*dotq[1]-dotq[2]),
+                      -(qdot[0]**2)*math.sin(q[1])*(self.k5+self.k2)+self.k9*(qdot[0]**2)*math.sin(q[1]+q[2])
+                      +self.k10*qdot[2]*math.sin(q[2])*(-2*qdot[0]-2*qdot[1]-qdot[2]),
                       
-                      self.k9*(dotq[0]**2)*math.sin(q[1]+q[2])+self.k10*math.sin(q[2])*((dotq[0]+dotq[2])**2)])
+                      self.k9*(qdot[0]**2)*math.sin(q[1]+q[2])+self.k10*math.sin(q[2])*((qdot[0]+qdot[2])**2)])
         #print ("C:",C)
         #the commented version uses a non null stiffness for the muscles
         #beware of dot product Kraid times q: q may not be the correct vector/matrix
@@ -78,23 +77,23 @@ class Arm38(Arm):
         Gamma = np.dot(np.dot(self.armP.At, self.musclesP.fmax), U)
         #print ("Gamma:",Gamma)
 
-        #computes the acceleration ddotq and integrates
+        #computes the acceleration qddot and integrates
     
-        b = np.dot(self.armP.B, dotq)
+        b = np.dot(self.armP.B, qdot)
         #print ("b:",b)
 
         #To avoid inverting M:
-        ddotq = np.linalg.solve(M, Gamma - C - b)
+        qddot = np.linalg.solve(M, Gamma - C - b)
 
 
-        #print ("ddotq",ddotq)
+        #print ("qddot",qddot)
 
-        dotq += ddotq*self.dt
-        #print ("dotq",dotq)
-        q += dotq*self.dt
+        qdot += qddot*self.dt
+        #print ("qdot",qdot)
+        q += qdot*self.dt
         #save the real state to compute the state at the next step with the real previous state
         q = self.joint_stop(q)
-        nextState = np.array([dotq[0], dotq[1], dotq[2], q[0], q[1], q[2]])
+        nextState = np.array([qdot[0], qdot[1], qdot[2], q[0], q[1], q[2]])
         return nextState
 
     
