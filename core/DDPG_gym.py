@@ -8,6 +8,8 @@ Created on Tue Feb  2 13:40:42 2016
 import time
 import tensorflow as tf
 
+import pickle
+
 from DDPG.test.helpers.draw import draw_policy
 
 from DDPG.core.sample import sample
@@ -20,8 +22,21 @@ from DDPG.core.networks.helper.mechanics import *
 from DDPG.core.networks.helper.operation_sequence import operation_sequence
 from DDPG.core.networks.helper.operate import operate
 
-from DDPG.core.networks.helper.network_tracking import track_network, copy_network
+from DDPG.core.networks.helper.network_tracking import track_network
 from DDPG.core.helpers.tensorflow_grad_inverter import grad_inverter
+
+def save_DDPG(ddpg_inst, filename):
+    f = open(filename, 'w')
+    save = {}
+    save["actor"]=ddpg_inst.actor.getParams()
+    save["critic"]=ddpg_inst.critic.getParams()
+    save["config"]=ddpg_inst.config
+    pickle.dump(save, f)
+def load_DDPG(env, filename):
+    f = open(filename, 'r')
+    save = pickle.load(f)
+    return DDPG_gym(env, save["config"], save["actor"], save["critic"])
+
 
 class DDPG_gym(object):
     """
@@ -29,7 +44,7 @@ class DDPG_gym(object):
         env : the task's environment
     """
 
-    def __init__(self, env, config):
+    def __init__(self, env, config, actor_parameters = None, critic_parameters = None):
         self.env = env
         self.noise_generator = noise_generator()
 
@@ -61,19 +76,24 @@ class DDPG_gym(object):
         self.actor = fully_connected_network(state_input, 
                                          [al1s, al2s, a_dim], 
                                          function=fa,
-                                         weight_init_range=weight_init_range_actor)
+                                         weight_init_range=weight_init_range_actor,
+                                         cloned_parameters = actor_parameters)
 
         self.target_actor = fully_connected_network(next_state_input, 
                                          [al1s, al2s, a_dim], 
                                          function=fa,
-                                         trainable=False)
+                                         trainable=False,
+                                         cloned_parameters = self.actor.params)
                                          
                                          
         self.critic = fully_connected_network([state_input, action_input],
                                         [cl1s, cl2s, 1], 
                                         function = fc, 
                                         input_layers_connections=input_layers_connections_critic,
-                                        weight_init_range=weight_init_range_critic)
+                                        weight_init_range=weight_init_range_critic,
+                                        cloned_parameters = critic_parameters)
+                                        
+        #this is the same network, with same weight and bias variables, but with a different input layer to allow faster training operations
         self.critic_a = fully_connected_network([state_input, self.actor.output],
                                         [cl1s, cl2s, 1], 
                                         function = fc, 
@@ -84,10 +104,8 @@ class DDPG_gym(object):
                                         [cl1s, cl2s, 1], 
                                         function = fc, 
                                         input_layers_connections=input_layers_connections_critic,
-                                        trainable=False)
-        
-        copy_network(self.actor, self.target_actor)
-        copy_network(self.critic, self.target_critic)
+                                        trainable=False,
+                                        cloned_parameters = self.critic.params)
         
         self.action=operate(self.actor.output, [state_input])
         

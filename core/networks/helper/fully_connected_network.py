@@ -59,7 +59,7 @@ def create_bias(shape, name, trainable = True):
                             If the range given for one layer is none, range will be automatically computed according to the fan_in of the layer.
 """
 class fully_connected_network:
-    def __init__(self, input_layers, size, function=None, normalization=None, input_layers_connections=None, trainable=True, weight_init_range=None, shared_parameters = None):
+    def __init__(self, input_layers, size, function=None, normalization=None, input_layers_connections=None, trainable=True, weight_init_range=None, shared_parameters = None, cloned_parameters = None):
         self.params = []
         self.layers = []
         self.b = []
@@ -108,6 +108,8 @@ class fully_connected_network:
                     raise Exception("Fully Connected Layer creation exception", "No connections to the last layer")
                 if shared_parameters != None:
                     bias = shared_parameters[len(self.params)]
+                elif cloned_parameters != None:
+                    bias =  tf.Variable(cloned_parameters[len(self.params)])
                 else:
                     bias = create_bias([size[i]], str(random.random()), trainable)
                 self.params.append(bias)
@@ -120,6 +122,8 @@ class fully_connected_network:
                 for l in last_layer:
                     if shared_parameters != None:
                         weight = shared_parameters[len(self.params)]
+                    elif cloned_parameters != None:
+                        weight =  tf.Variable(cloned_parameters[len(self.params)])
                     elif weight_init_range[i]==None:
                         weight = tf.Variable(tf.random_uniform([l.get_shape()[-1].value, size[i]], -1/math.sqrt(fan_in), 1/math.sqrt(fan_in)), trainable=trainable) #create_weight([l.get_shape()[-1].value, size[i]], trainable)
                     else:
@@ -138,3 +142,5 @@ class fully_connected_network:
             self.output = self.layers[-1]
             if shared_parameters == None:
                 getSession(self.graph).run(tf.initialize_variables(self.params))
+    def getParams(self):
+        return getSession(self.graph).run(self.params)
