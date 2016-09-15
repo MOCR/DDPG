@@ -32,6 +32,7 @@ def save_DDPG(ddpg_inst, filename):
     save["critic"]=ddpg_inst.critic.getParams()
     save["config"]=ddpg_inst.config
     pickle.dump(save, f)
+    
 def load_DDPG(env, filename):
     f = open(filename, 'r')
     save = pickle.load(f)

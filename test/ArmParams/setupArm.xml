@@ -31,6 +31,6 @@
   	<delay>10</delay>
   </estimation>
   <output_folder_name>
-  	<output>Log/</output>
+  	<output>Results/</output>
   </output_folder_name>
 </setup>

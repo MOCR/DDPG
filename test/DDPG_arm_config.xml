@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <setup>
   <actorParams>
-  	<layer1_size>20</layer1_size>
-  	<layer2_size>10</layer2_size>
+  	<layer1_size>15</layer1_size>
+  	<layer2_size>8</layer2_size>
   	<learning_rate>0.01</learning_rate>
   	<actor_tracking_rate>0.01</actor_tracking_rate>
   </actorParams>

@@ -32,7 +32,7 @@ if (monitor):
 l1 = 20
 l2 = 10
 
-logger = result_log("DDPG", l1, l2, ""+str(l1)+"_"+str(l2))
+logger = result_log("DDPG", l1, l2, str(l1)+"_"+str(l2))
 agent = DDPG_gym(env,config)
 
 def doEp(M):
