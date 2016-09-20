@@ -195,6 +195,10 @@ class DDPG_gym(object):
                     self.train()
                     self.totTrainTime += time.time() - trainTime
                 self.numSteps+=1
+        if (done):
+            self.noise_generator.decrease_noise()
+        else:
+            self.noise_generator.increase_noise()            
         if self.config.draw_policy:
             draw_policy(self,self.env)
         return totReward, done
@@ -219,9 +223,9 @@ class DDPG_gym(object):
                 print('episode',i,'***** nb steps',self.nb_steps, " perf : ", reward)
             else: print('episode',i,'nb steps',self.nb_steps, " perf : ", reward)
 
-    def train_loop(self):
+    def train_loop(self,nb_loops):
         if self.config.train:
-            for i in range(self.train_loop_size):
+            for i in range(nb_loops):
                 self.train()
 
     def train(self):

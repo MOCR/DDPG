@@ -20,7 +20,7 @@ from gym.envs.motor_control.ArmModel.Arm import get_q_and_qdot_from
 
 pathDataFolder = "./ArmParams/"
 config = read_xml_file("DDPG_arm_config.xml")
-controllers_folder = "./Ctrl/"
+controllers_folder = "./Ctrl_save/"
 
 class Result_Generator():
     def __init__(self):
@@ -31,10 +31,6 @@ class Result_Generator():
         self.env = gym.make('ArmModel-v0')
         self.state_estimator = State_Estimator(self.rs.inputDim, self.rs.outputDim, self.rs.delayUKF, self.env.get_arm())
         self.max_steps = self.rs.max_steps
-        self.traj_store = []
-        self.finalX = []
-        self.cost_store = []
-        self.time_store = []
         self.logger = Logger()
         self.posIni = np.loadtxt(pathDataFolder + self.rs.experimentFilePosIni)
         if(len(self.posIni.shape)==1):
@@ -46,6 +42,18 @@ class Result_Generator():
         self.estim_state = self.state_estimator.init_store(self.env.reset())
 
     def store_step(self,dico):
+        '''
+        data [0 - 3] = target in joint space
+        data [4 - 7] = estimated current state in joint space
+        data [8 - 11] = actual current state in joint space
+        data [12 - 17] = noisy muscular activations
+        data [18 - 23] = noiseless muscular activations
+        data [24 - 27] = estimated next state in joint space
+        data [28 - 31] = actual next state in joint space
+        data [32 - 33] = elbow position in cartesian space
+        data [34 - 35] = hand position in cartesian space
+        '''
+
         vec_save = []
         vec_save.append(dico['vectarget'])
         vec_save.append(dico['estimState'])
@@ -63,34 +71,33 @@ class Result_Generator():
         row = [item for sub in vec_save for item in sub]
         self.traj_store.append(row)
 
-    def save(self):
-        self.saveTraj()
-        self.saveFinalX()
+    def saveTarget(self):
         self.saveMeanTime()
         self.saveMeanCost()
+        self.saveFinalX()
         
     def saveFinalX(self):
-        foldername = self.rs.output_folder_name + str(self.ts) + + "/finalX/"
+        foldername = self.rs.output_folder_name + str(self.ts) + "/finalX/"
         checkIfFolderExists(foldername)
         filename = foldername + "x.last"
         np.savetxt(filename,self.finalX)
         
     def saveMeanTime(self):
-        foldername = self.rs.output_folder_name + str(self.ts) + + "/TrajTime/"
+        foldername = self.rs.output_folder_name + str(self.ts) + "/TrajTime/"
         checkIfFolderExists(foldername)
         filename = foldername + "traj.time"
         np.savetxt(filename,self.time_store)
     
     def saveMeanCost(self):
-        foldername = self.rs.output_folder_name + str(self.ts) + + "/Cost/"
+        foldername = self.rs.output_folder_name + str(self.ts) + "/Cost/"
         checkIfFolderExists(foldername)
         filename = foldername + "traj.cost"
         np.savetxt(filename,self.cost_store)
         
     def saveTraj(self):
-        foldername = self.rs.output_folder_name + str(self.ts) + + "/Log/"
+        foldername = self.rs.output_folder_name + str(self.ts) + "/Log/"
         checkIfFolderExists(foldername)
-        filename = findDataFilename(foldername,"traj",".log")
+        filename = foldername + "traj" + str(self.cpt_traj) +  ".log"
         np.savetxt(filename,self.traj_store)
 
     def step(self):
@@ -138,14 +145,16 @@ class Result_Generator():
         numSteps is the number of steps over all episodes
         '''
         finished = False
+        self.traj_store = []
+
         t = 0
         total_cost = 0
         while not finished:
             reward, done, finished = self.step()
             total_cost += reward
-            self.learner.train_loop()
             t += self.rs.dt
-        self.save()
+        self.saveTraj()
+        self.cpt_traj += 1
         return total_cost, t, done
 
     def perform_M_episodes(self, M, starting_point, target_size):
@@ -166,7 +175,12 @@ class Result_Generator():
             
     def generate_results(self,nb_repeats):
         for target_size in [0.005, 0.01, 0.02, 0.04]:
+            self.cpt_traj = 0
+            self.finalX = []
+            self.cost_store = []
+            self.time_store = []
             for i in range(15):
+                print('target',target_size,'point',i)
                 foldername = controllers_folder + str(target_size) + "/" + str(i) + "/"
                 filename = foldername + "Best.theta"
                 self.learner = load_DDPG(self.env,filename)
@@ -177,8 +191,9 @@ class Result_Generator():
                 print('^^^^^^^^^^ mean cost', mean_cost)
                 self.cost_store.append([self.posIni[i][0], self.posIni[i][1], mean_cost])
                 self.time_store.append([self.posIni[i][0], self.posIni[i][1], mean_time])
-            self.save()
+            self.saveTarget()
+
 
 s = Result_Generator()
-s.generate_results(20)
+s.generate_results(2)
 

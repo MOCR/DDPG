@@ -3,7 +3,7 @@
   <data>
   	<inputSize>4</inputSize>
   	<outputSize>6</outputSize>
-  	<noise>no</noise>
+  	<noise>yes</noise>
   </data>
   <costFunction type='CostCMAES'>
     <gamma>0.6</gamma>

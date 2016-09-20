@@ -22,17 +22,12 @@ env.configure(deterministic=False)
 #env = gym.make('Pendulum-v0')
 #env = gym.make('Acrobot-v0')
 
-monitor=False
+monitor=True
 
 if (monitor):
-    env.monitor.start('/home/sigaud/Bureau/sigaud/DDPG_gym/DDPG/log')
+    env.monitor.start('/home/sigaud/Bureau/sigaud/DDPG_gym/DDPG/log',force=True)
     env.monitor.configure(video_callable=lambda count: count % 100 == 0)
 
-
-l1 = 20
-l2 = 10
-
-logger = result_log("DDPG", l1, l2, str(l1)+"_"+str(l2))
 agent = DDPG_gym(env,config)
 
 def doEp(M):
@@ -45,7 +40,7 @@ def doInit():
         draw_policy(agent,env)
 
 c=Chrono()
-doEp(100)
+doEp(500)
 save_DDPG(agent, "Agent_0.ddpg")
 
 if (monitor):

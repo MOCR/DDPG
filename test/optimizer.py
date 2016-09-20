@@ -8,9 +8,9 @@ import gym
 import numpy as np
 import os
 
-from Utils.FileWriting import checkIfFolderExists, findDataFilename, writeArray, find_best_theta_file
+from Utils.FileWriting import checkIfFolderExists, findDataFilename, writeArray, find_best_theta_file, check_if_theta_file_exists
 from Utils.ReadXmlArmFile import ReadXmlArmFile
-from DDPG.core.DDPG_gym import DDPG_gym, save_DDPG
+from DDPG.core.DDPG_gym import DDPG_gym, save_DDPG, load_DDPG
 from Experiments.StateEstimator import State_Estimator
 from DDPG.core.helpers.read_xml_file import read_xml_file
 from DDPG.test.helpers.logger import Logger
@@ -23,6 +23,9 @@ config = read_xml_file("DDPG_arm_config.xml")
 
 controllers_folder = "./Ctrl/"
 
+nb_repeats = 10
+training_loops = 40
+
 class Optimizer():
     def __init__(self):
         '''
@@ -31,9 +34,6 @@ class Optimizer():
         self.rs  = ReadXmlArmFile(pathDataFolder + "setupArm.xml")
         self.env = gym.make('ArmModel-v0')
         self.state_estimator = State_Estimator(self.rs.inputDim, self.rs.outputDim, self.rs.delayUKF, self.env.get_arm())
-        self.max_steps = self.rs.max_steps
-        self.data_store = []
-        self.logger = Logger()
 
     def reset(self):
         self.nb_steps = 0
@@ -82,8 +82,16 @@ class Optimizer():
         while not finished:
             reward, done, finished = self.step()
             total_cost += reward
-            self.learner.train_loop()
         return total_cost, done
+
+    def perform_repeats(self, repeats, starting_point, target_size):
+        mean_cost = 0
+        done = False
+        for i in range(repeats):
+            self.reset()
+            total_cost, done = self.perform_episode()
+            mean_cost += total_cost
+        return mean_cost/repeats, done
 
     def perform_M_episodes(self, M, starting_point, target_size):
         '''
@@ -92,13 +100,12 @@ class Optimizer():
         best_cost = -30000
         done = False
         self.env.configure(starting_point, target_size)
-        self.learner = DDPG_gym(self.env,config)
         for i in range(M):
             self.reset()
-            total_cost, done = self.perform_episode()
+            total_cost, done = self.perform_repeats(nb_repeats, starting_point, target_size)
             if np.isnan(total_cost):
                 print('cible',target_size,'episode',i,'divergence for point',starting_point)
-                return 0
+                return best_cost
             self.logger.store(total_cost)
             if (total_cost>best_cost):
                 if (total_cost>0):
@@ -106,7 +113,38 @@ class Optimizer():
                     self.save_controller(foldername,total_cost)
                 best_cost=total_cost
                 print('episode',i,'***** best cost',total_cost)
+            self.learner.train_loop(training_loops)
         return best_cost
+            
+    def find_first_bests(self):
+        finished = False
+        while not finished:
+            finished = True
+            for target_size in [0.005, 0.01, 0.02, 0.04]:
+                for i in range(15):
+#                for i in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]:
+                    if not check_if_theta_file_exists(controllers_folder,target_size,i):
+                        print('target',target_size,'point',i)
+                        self.logger = Logger()
+                        self.learner = DDPG_gym(self.env,config)
+                        total = s.perform_M_episodes(100,i,target_size)
+                        print('^^^^^^^^^^ final cost',total)
+                        if total<=0:
+                            finished = False
+#                   s.logger.plot_progress()
+            
+    def optimize_existing(self):
+        finished = False
+        while not finished:
+            for target_size in [0.005, 0.01, 0.02, 0.04]:
+                for i in range(15):
+                    print('target',target_size,'point',i)
+                    self.logger = Logger()
+                    foldername = controllers_folder + str(target_size) + "/" + str(i) + "/"
+                    filename = foldername + "Best.theta"
+                    self.learner = load_DDPG(self.env,filename)
+                    total = s.perform_M_episodes(300,i,target_size)
+                    print('^^^^^^^^^^ final cost',total)
 
     def save_controller(self,foldername,total_cost):
         filename1 = foldername + "Theta/theta1.save" + str(total_cost)
@@ -118,14 +156,7 @@ class Optimizer():
 #            print('saved in',filename1)
             save_DDPG(self.learner,filename1)
             save_DDPG(self.learner,filename2)
-            
-    def main(self):
-        for target_size in [0.005, 0.01, 0.02, 0.04]:
-            for i in [6, 8, 9, 10, 11, 13, 14]:
-#            for i in range(15):
-                total = s.perform_M_episodes(2000,i,target_size)
-                print('^^^^^^^^^^ final cost',total)
-#                s.logger.plot_progress()
 
 s = Optimizer()
-s.main()
+s.find_first_bests()
+s.optimize_existing()

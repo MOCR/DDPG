@@ -50,7 +50,7 @@ def draw_policy(agent,env):
     plt.imshow(img, extent=(-1.2,0.8,-1.0,1.0))
 #    draw_buffer(agent)
     draw_episode(agent,env)
-    plt.show(block=False)
+    plt.show(block=True)
 
 def transfo(x,y):
     return x,2*y

@@ -26,8 +26,14 @@ class noise_generator(object):
     def update_noise(self):
         self.noise = self.get_sample()
 
+    def increase_noise(self):
+        self.beta = self.beta*1.02
+
+    def decrease_noise(self):
+        self.beta = self.beta*0.7
+
     def get_sample(self):
-        return self.noise-self.alpha*self.noise + self.beta*random.gauss(0,1)
+        return self.beta*(self.noise + random.gauss(0,1))
 
     def add_noise(self,action_vector):
         noisy_action = []

@@ -20,6 +20,8 @@ from gym.envs.motor_control.ArmModel.Arm import get_q_and_qdot_from
 pathDataFolder = "./ArmParams/"
 config = read_xml_file("DDPG_arm_config.xml")
 
+nb_repeats = 20
+
 #TODO: perform episode from each starting point (env.configure(i,target_size) env.reset())
 
 def checkIfFolderExists(name):
@@ -81,9 +83,9 @@ class Solver():
         self.learner.store_sample(self.estim_state, action, reward, estim_next_state)
         if config.render:
             self.env.render()
-        infos['estimState'] = self.estim_state
-        infos['vectarget'] = self.env.get_target_vector()
-        infos['estimNextState'] = estim_next_state
+#        infos['estimState'] = self.estim_state
+#        infos['vectarget'] = self.env.get_target_vector()
+#        infos['estimNextState'] = estim_next_state
         self.estim_state = estim_next_state
         q, qdot = get_q_and_qdot_from(self.estim_state)
         self.nb_steps += 1
@@ -124,10 +126,18 @@ class Solver():
         while not finished:
             reward, done, finished = self.step()
             total_cost += reward
-            self.learner.train_loop()
 #        self.save()
         return total_cost, done
 
+    def perform_repeats(self, repeats, starting_point, target_size):
+        mean_cost = 0
+        done = False
+        for i in range(repeats):
+            self.reset()
+            total_cost, done = self.perform_episode()
+            mean_cost += total_cost
+        return mean_cost/repeats, done
+    
     def perform_M_episodes(self, M, starting_point, target_size):
         '''
         perform M episodes
@@ -138,17 +148,18 @@ class Solver():
         for i in range(M):
 #            self.env.configure(i%15, target_size)
             self.reset()
-            total_cost, done = self.perform_episode()
+            total_cost, done = self.perform_repeats(nb_repeats, starting_point, target_size)
             self.logger.store(total_cost)
             if (total_cost>best_cost):
                 best_cost=total_cost
                 print('episode',i,'***** best cost',total_cost)
             else:
                 print('episode',i,'total cost',total_cost)
+            self.learner.train_loop(25)
         return best_cost
 
 s = Solver()
 for i in range(15):
-    total = s.perform_M_episodes(2000,i,0.04)
+    total = s.perform_M_episodes(50,i,0.04)
     print('^^^^^^^^^^ final cost',total)
     s.logger.plot_progress()

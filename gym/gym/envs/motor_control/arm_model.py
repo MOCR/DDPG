@@ -226,7 +226,7 @@ class ArmModelEnv(gym.Env):
 
     def get_target_vector(self):
         qtarget1, qtarget2 = self.arm.mgi(self.rs.XTarget, self.rs.YTarget)
-        return [0.0, 0.0, qtarget1, qtarget2]
+        return [qtarget1, qtarget2, 0.0, 0.0]
 
 '''
 a = ArmModelEnv()

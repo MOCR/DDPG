@@ -32,7 +32,7 @@ class Continuous_MountainCarEnv(gym.Env):
         self.max_action = 1.0
         self.min_position = -1.4
         self.max_position = 0.6
-        self.init_position = -0.5
+        self.init_position = -0.4
         self.max_speed = 0.7
         self.goal_position = 0.5
         self.power = 0.0015
