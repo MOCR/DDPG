@@ -6,18 +6,8 @@ Created on Sat Jun 25 16:31:15 2016
 """
 import tensorflow as tf
 import math
-import random
 
 from DDPG.core.networks.helper.tf_session_handler import getSession 
-
-def variable_summaries(var, name):
-  """Attach a lot of summaries to a Tensor."""
-  with tf.name_scope('summaries'):
-    mean = tf.reduce_mean(var)
-    tf.scalar_summary('mean of ' + name, mean)
-    tf.scalar_summary('max of ' + name, tf.reduce_max(var))
-    tf.scalar_summary('min of ' + name, tf.reduce_min(var))
-    tf.histogram_summary(name, var)
 
 def create_weight(shape, trainable = True):
     """
@@ -28,7 +18,7 @@ def create_weight(shape, trainable = True):
     with tf.name_scope('weight'):
         return tf.Variable(tf.truncated_normal(shape, stddev=0.1), trainable)
 
-def create_bias(shape, name, trainable = True):
+def create_bias(shape, trainable = True):
     """
     create a bias for the neural network
     question: why write trainable=trainable instead of just trainable
@@ -36,7 +26,6 @@ def create_bias(shape, name, trainable = True):
     """
     with tf.name_scope('bias'):
         bias = tf.Variable(tf.constant(0.1, shape=shape), trainable) # was 0.1
-        variable_summaries(bias,'bias' + name)
         return bias
 
 """ fully_connected_layer :
@@ -111,7 +100,7 @@ class fully_connected_network:
                 elif cloned_parameters != None:
                     bias =  tf.Variable(cloned_parameters[len(self.params)])
                 else:
-                    bias = create_bias([size[i]], str(random.random()), trainable)
+                    bias = create_bias([size[i]], trainable)
                 self.params.append(bias)
                 self.b.append(bias)
                 layer = bias
@@ -125,9 +114,9 @@ class fully_connected_network:
                     elif cloned_parameters != None:
                         weight =  tf.Variable(cloned_parameters[len(self.params)])
                     elif weight_init_range[i]==None:
-                        weight = tf.Variable(tf.random_uniform([l.get_shape()[-1].value, size[i]], -1/math.sqrt(fan_in), 1/math.sqrt(fan_in)), trainable=trainable) #create_weight([l.get_shape()[-1].value, size[i]], trainable)
+                        weight = tf.Variable(tf.random_uniform([l.get_shape()[-1].value, size[i]], -1/math.sqrt(fan_in), 1/math.sqrt(fan_in)), trainable=trainable)
                     else:
-                        weight = tf.Variable(tf.random_uniform([l.get_shape()[-1].value, size[i]], weight_init_range[i][0],weight_init_range[i][1]), trainable=trainable)
+                      weight = tf.Variable(tf.random_uniform([l.get_shape()[-1].value, size[i]], weight_init_range[i][0],weight_init_range[i][1]), trainable=trainable)
                     self.params.append(weight)
                     self.w[-1].append(weight)
                     layer += tf.matmul(l, weight)

@@ -131,7 +131,7 @@ class Optimizer():
                         print('^^^^^^^^^^ final cost',total)
                         if total<=0:
                             finished = False
-#                   s.logger.plot_progress()
+#                   self.logger.plot_progress()
             
     def optimize_existing(self):
         finished = False
