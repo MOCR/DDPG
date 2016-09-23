@@ -164,7 +164,8 @@ class DDPG_gym(object):
         self.nb_steps += 1
         action = self.get_noisy_action_from_state(self.state)
         next_state, reward, done, infos = self.env.step(action)
-        self.store_sample(self.state, action, reward, next_state)
+        if self.config.train:
+            self.store_sample(self.state, action, reward, next_state)
         self.render()
         self.state = next_state
         return reward, done
@@ -174,7 +175,6 @@ class DDPG_gym(object):
             self.env._render()
             
     def store_sample(self, state, action, reward, next_state):
-        if self.config.train:
             self.replay_buffer.store_one_sample(sample(state, action, reward, next_state))
     
     def perform_episode(self):
