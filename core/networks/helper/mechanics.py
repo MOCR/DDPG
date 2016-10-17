@@ -14,6 +14,12 @@ def temporal_difference_error(net, reward_input, q_s_a, gamma = 0.99, regulariza
         y_opp = reward_input + q_s_a*gamma
         temporal_diff_error = tf.pow(net.output-y_opp, 2)/tf.to_float(tf.shape(y_opp)[0]) + regularization*(tf.reduce_sum(tf.pow(net.params[-1],2)) + tf.reduce_sum(tf.pow(net.params[-2],2)))
         return temporal_diff_error
+        
+def target_error(net, target, regularization=0.0001):
+    graph = net.graph
+    with graph.as_default():
+        error = tf.pow(net.output-target, 2)/tf.to_float(tf.shape(target)[0]) + regularization*(tf.reduce_sum(tf.pow(net.params[-1],2)) + tf.reduce_sum(tf.pow(net.params[-2],2)))
+        return error
 
 def minimize_error(net,error, learning_rate):
     with net.graph.as_default():

@@ -25,6 +25,9 @@ from DDPG.core.networks.helper.operate import operate
 from DDPG.core.networks.helper.network_tracking import track_network
 from DDPG.core.helpers.tensorflow_grad_inverter import grad_inverter
 
+from DDPG.core.networks.helper.batch_norm import batch_norm
+import numpy as np
+
 def save_DDPG(ddpg_inst, filename):
     f = open(filename, 'w')
     save = {}
@@ -47,12 +50,13 @@ class DDPG_gym(object):
 
     def __init__(self, env, config, actor_parameters = None, critic_parameters = None):
         self.env = env
-        self.noise_generator = noise_generator()
 
         self.config = config
 
         s_dim = env.observation_space.low.shape[0]
         a_dim = env.action_space.low.shape[0]
+        
+        self.noise_generator = noise_generator(a_dim)
 
         al1s = self.config.actor_l1size
         al2s = self.config.actor_l2size
@@ -60,7 +64,7 @@ class DDPG_gym(object):
         cl2s = self.config.critic_l2size
         
         fa = [tf.nn.softplus, tf.nn.softplus, None]
-        fc = [tf.nn.softplus, tf.nn.tanh, None]
+        fc = [tf.nn.softplus, tf.nn.softplus, None]
         
         weight_init_range_actor=[None,None,[-0.0003,0.0003]]
         weight_init_range_critic=[None, None,[-0.0003,0.0003]]
@@ -75,13 +79,17 @@ class DDPG_gym(object):
         next_state_input=inputs[3]
 
         self.actor = fully_connected_network(state_input, 
-                                         [al1s, al2s, a_dim], 
+                                         [al1s, al2s, a_dim],
+                                         normalization=batch_norm,
+                                         name="Actor",
                                          function=fa,
                                          weight_init_range=weight_init_range_actor,
                                          cloned_parameters = actor_parameters)
 
-        self.target_actor = fully_connected_network(next_state_input, 
+        self.target_actor = fully_connected_network(next_state_input,
                                          [al1s, al2s, a_dim], 
+                                         normalization=batch_norm,
+                                         name="Target_Actor",
                                          function=fa,
                                          trainable=False,
                                          cloned_parameters = self.actor.params)
@@ -89,6 +97,8 @@ class DDPG_gym(object):
                                          
         self.critic = fully_connected_network([state_input, action_input],
                                         [cl1s, cl2s, 1], 
+                                        normalization=batch_norm,
+                                        name="Critic",
                                         function = fc, 
                                         input_layers_connections=input_layers_connections_critic,
                                         weight_init_range=weight_init_range_critic,
@@ -97,18 +107,23 @@ class DDPG_gym(object):
         #this is the same network, with same weight and bias variables, but with a different input layer to allow faster training operations
         self.critic_a = fully_connected_network([state_input, self.actor.output],
                                         [cl1s, cl2s, 1], 
+                                        normalization=batch_norm,
+                                        name="actor_linked_Critic",
                                         function = fc, 
                                         input_layers_connections=input_layers_connections_critic,
                                         shared_parameters=self.critic.params)
                                         
         self.target_critic = fully_connected_network([next_state_input, self.target_actor.output],
                                         [cl1s, cl2s, 1], 
+                                        normalization=batch_norm,
+                                        name="Target_Critic",
                                         function = fc, 
                                         input_layers_connections=input_layers_connections_critic,
                                         trainable=False,
                                         cloned_parameters = self.critic.params)
         
         self.action=operate(self.actor.output, [state_input])
+        self.value=operate(self.critic.output, [state_input, action_input])
         
         critic_update = minimize_error(self.critic, temporal_difference_error(self.critic, reward_input, self.target_critic.output), self.config.critic_learning_rate)
         
@@ -119,14 +134,18 @@ class DDPG_gym(object):
         see: http://arxiv.org/abs/1511.04143 
         """
         if self.config.grad_mode:
-            action_grad = grad_inverter(action_grad, self.actor.output)
+            if  hasattr(self.env, 'max_action') and hasattr(self.env, 'min_action'):
+                action_bounds=[self.env.max_action, self.env.min_action]
+            else:
+                action_bounds = None
+            action_grad = grad_inverter(action_grad, self.actor.output, action_bounds)
         
         deterministic_policy_gradient = update_over_output_gradient(self.actor, action_grad, self.config.actor_learning_rate)
 
         track_actor = track_network(self.actor, self.target_actor, self.config.actor_tracking_rate)
         track_critic = track_network(self.critic, self.target_critic, self.config.critic_tracking_rate)
         
-        self.trainer = operation_sequence([critic_update, deterministic_policy_gradient, track_actor + track_critic], inputs)
+        self.trainer = operation_sequence([critic_update, deterministic_policy_gradient,self.actor.updaters + self.critic.updaters, track_actor + track_critic], inputs)
 
         self.replay_buffer = replay_buffer(self.config.buffer_min,self.config.buffer_size)
 
@@ -162,7 +181,9 @@ class DDPG_gym(object):
         nb_steps is the number of steps over this episode
         '''
         self.nb_steps += 1
-        action = self.get_noisy_action_from_state(self.state)
+        action = np.array(self.get_noisy_action_from_state(self.state))
+        for i in range(len(action)):
+            action[i] = max(min(1.0,action[i]) , -1.0)
         next_state, reward, done, infos = self.env.step(action)
         if self.config.train:
             self.store_sample(self.state, action, reward, next_state)
@@ -195,10 +216,10 @@ class DDPG_gym(object):
                     self.train()
                     self.totTrainTime += time.time() - trainTime
                 self.numSteps+=1
-        if (done):
-            self.noise_generator.decrease_noise()
-        else:
-            self.noise_generator.increase_noise()            
+        #if (done):
+        #    self.noise_generator.decrease_noise()
+        #else:
+        #    self.noise_generator.increase_noise()            
         if self.config.draw_policy:
             draw_policy(self,self.env)
         return totReward, done
@@ -212,7 +233,12 @@ class DDPG_gym(object):
         for i in range(M):
             self.nb_steps = 0
             self.state = self.env.reset()
+            self.noise_generator.randomRange()
             reward, done = self.perform_episode()
+            if i%20 == 0:
+                self.config.render =True
+            else:
+                self.config.render =False
             if i % self.config.print_interval == 0 and self.config.train:
                 self.stepsTime += self.totStepTime + self.totTrainTime
 #                print("Steps/minutes : " , 60.0*self.numSteps/self.stepsTime)               
@@ -220,8 +246,9 @@ class DDPG_gym(object):
                 self.totTrainTime = 0
             if (self.nb_steps<max_nb_steps):#OSD:patch to study nb steps
                 max_nb_steps = self.nb_steps
-                print('episode',i,'***** nb steps',self.nb_steps, " perf : ", reward)
-            else: print('episode',i,'nb steps',self.nb_steps, " perf : ", reward)
+                print('episode',i,'***** nb steps',self.nb_steps, " perf : ", reward, " total steps :", self.numSteps)
+                print(self.replay_buffer.reward_min, self.replay_buffer.reward_max)
+            else: print('episode',i,'nb steps',self.nb_steps, " perf : ", reward, " total steps :", self.numSteps)
 
     def train_loop(self,nb_loops):
         if self.config.train:

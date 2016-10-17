@@ -70,6 +70,7 @@ class ArmModelEnv(gym.Env):
         self.observation_space = spaces.Box(self.low_state, self.high_state)
 
         self._seed()
+        self.block_arm = False
 #        self._configure(0,0.005)
 #        self.arm.set_state(self.reset())
 
@@ -96,6 +97,7 @@ class ArmModelEnv(gym.Env):
         self.stateStore = np.zeros((self.delay,self.dimState))
         self.steps = 0
         self.t = 0
+        self.block_arm = False
         return self.state
     
     def store_state(self, state):
@@ -116,8 +118,10 @@ class ArmModelEnv(gym.Env):
         Unoisy = getNoisyCommand(action,self.arm.musclesP.knoiseU)
         Unoisy = muscleFilter(Unoisy)
         #        Unoisy = np.array([0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
-
-        realNextState = self.arm.computeNextState(Unoisy, self.state)
+        if self.block_arm ==False:
+            realNextState = self.arm.computeNextState(Unoisy, self.state)
+        else:
+            realNextState = self.state
         self.state = realNextState
 
         q, qdot = get_q_and_qdot_from(self.state)
@@ -129,6 +133,10 @@ class ArmModelEnv(gym.Env):
         cost, done, finished = self.eval.compute_reward(self.arm, self.t, Unoisy, self.steps, coordHand, self.target_size, self.get_current_state())
         self.steps += 1
         self.t += self.rs.dt
+        
+        if finished and not done and not self.block_arm and cost != 0:
+            self.block_arm = True
+            finished = False
 
         step_dic = {}
         step_dic['state'] = self.state
@@ -138,7 +146,7 @@ class ArmModelEnv(gym.Env):
         step_dic['elbow'] = [coordElbow[0], coordElbow[1]]
         step_dic['hand'] = [coordHand[0], coordHand[1]]
 
-        return output_state, cost, done, finished, step_dic
+        return realNextState, cost, done, finished, step_dic
 
     def scale_x(self,x):
         return self.screen_width/2 + x*self.scale
@@ -180,15 +188,33 @@ class ArmModelEnv(gym.Env):
         target.append([self.scale_x(xmax),self.scale_y(ytarg)])
         top_line.append([0,self.scale_y(ytarg)])
         top_line.append([self.screen_width,self.scale_y(ytarg)])
+        
+        bottom_line=[]
+        bottom_line.append([0,self.scale_y(0.2)])
+        bottom_line.append([self.screen_width,self.scale_y(0.2)])
+
+        left_line=[]
+        left_line.append([self.scale_x(-.3),0])
+        left_line.append([self.scale_x(-.3),self.screen_height])
+        
+        right_line=[]
+        right_line.append([self.scale_x(0.3),0])
+        right_line.append([self.scale_x(0.3),self.screen_height])
+        
         target_drawing = rendering.make_polyline(target)
         top_line_drawing = rendering.make_polyline(top_line)
+        bottom_line_drawing = rendering.make_polyline(bottom_line)
+        left_line_drawing = rendering.make_polyline(left_line)
+        right_line_drawing = rendering.make_polyline(right_line)
         target_drawing.set_linewidth(4)
         target_drawing.set_color(.2, .3, .8)
         top_line_drawing.set_color(.9, .1, .1)
 #        target_drawing.add_attr(rendering.Transform())
         self.viewer.add_geom(target_drawing)
         self.viewer.add_geom(top_line_drawing)
-
+        self.viewer.add_geom(bottom_line_drawing)
+        self.viewer.add_geom(left_line_drawing)
+        self.viewer.add_geom(right_line_drawing)
         start1 = []
         start2 = []
         start3 = []

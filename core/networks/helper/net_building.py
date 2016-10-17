@@ -12,5 +12,5 @@ def create_input_layers(shapes):
     inputs = []
     with graph.as_default():
         for s in shapes:
-            inputs.append(tf.placeholder(tf.float32, s))
+            inputs.append(tf.check_numerics(tf.placeholder(tf.float32, s), "Input error (NaN or Inf)"))
     return inputs

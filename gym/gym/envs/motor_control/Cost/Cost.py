@@ -13,7 +13,8 @@ from gym.envs.motor_control.ArmModel.Arm import get_q_and_qdot_from
 class Cost():
     def __init__(self, rs):
         self.rs=rs
-
+        self.previous=0
+        self.found=False
 
     def computeManipulabilityCost(self, arm, state):
         '''
@@ -89,24 +90,37 @@ class Cost():
     def compute_reward(self, arm, t, U, i, coordHand, target_size, state):
         done = False
         finished = False
-        cost = self.computeStateTransitionCost(U)
-
-        if coordHand[1] >= self.rs.YTarget or i >= self.rs.max_steps:
+        cost=0
+        #cost= (1/(0.01+(coordHand[0]*coordHand[0])+(coordHand[1]-self.rs.YTarget)*(coordHand[1]-self.rs.YTarget)))/100.0
+#        if self.previous ==0:
+#            cost=0
+#        else:
+#            cost= 1/((coordHand[0]*coordHand[0])+(coordHand[1]-self.rs.YTarget)*(coordHand[1]-self.rs.YTarget))-self.previous
+        #cost = self.computeStateTransitionCost(U)/1000
+#        self.previous=1/((coordHand[0]*coordHand[0])+(coordHand[1]-self.rs.YTarget)*(coordHand[1]-self.rs.YTarget))
+        
+        if coordHand[1] >= self.rs.YTarget:# or coordHand[1] <= 0.2 or coordHand[0]<=-0.3 or coordHand[0]>=0.3:
             finished = True
+            self.previous=0
             #check if the Ordinate of the target is reached and give the reward if yes
             if coordHand[1] >= self.rs.YTarget:
                 #check if target is reached
                 if coordHand[0] >= -target_size/2 and coordHand[0] <= target_size/2:
-                    cost += np.exp(-t/self.rs.gammaCF)*self.rs.rhoCF
-                    cost += self.computePerpendCost(arm,state)
+                    #finished = True
+                    cost += 1.0 #np.exp(-t/self.rs.gammaCF)*self.rs.rhoCF/10
+                    self.found=True
+                    #cost += self.computePerpendCost(arm,state)
 #                    cost += self.computeHitVelocityCost(arm,state)
                     print('goal reached')
                     done = True
-                else:
-                    cost+= -50000+50000*(1-coordHand[0]*coordHand[0])
-            else:
-                cost += -10000+10000*(coordHand[1]*coordHand[1])
-                q, qdot = get_q_and_qdot_from(state)
+                else : #if self.found:
+                    cost = -0.01#cost+= (1-coordHand[0]*coordHand[0])
+            #else:
+                #cost += -10000+10000*(coordHand[1]*coordHand[1])
+                #q, qdot = get_q_and_qdot_from(state)
+        if i>self.rs.max_steps:
+            finished=True
+            self.previous=0
 #                print('xy',coordHand[0],coordHand[1],'-0.6<q1<2.6',q[0],'-0.2<q2<3.0',q[1])
             
         return cost, done, finished
